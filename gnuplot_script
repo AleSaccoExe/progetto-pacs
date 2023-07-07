@@ -1,0 +1,3 @@
+set hidden3d
+splot "dati-pronti.txt" with lines
+pause -1

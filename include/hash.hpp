@@ -43,7 +43,7 @@ namespace std
 			
 	/*!	Specialization for boundingBox. */
 	#ifndef __clang__
-	template<>
+	//template<>
 	#endif
 	template<UInt N>
 	struct hash<boundingBox<N>>
