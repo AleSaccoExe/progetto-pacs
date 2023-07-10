@@ -79,4 +79,17 @@ namespace geometry
 		else
 			out << "intersect in a non-conformal way." << endl;
 	}
+
+	Real utility::newton(const std::function<Real(Real)> &f, Real x0, unsigned max_it, Real toll, Real h)
+	{
+		Real x = x0;
+		for(unsigned i=0; i<max_it && std::abs(f(x))>toll; ++i)
+		{
+			Real fx = f(x);
+			Real dfx = ( f(x+h)-f(x-h) )/(2.*h);
+			Real dx = -fx/dfx;
+			x = x+dx;
+		}
+		return x;
+	}
 }

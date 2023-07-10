@@ -6,6 +6,7 @@
 
 #include <string>
 #include <iostream>
+#include <functional>
 
 #include "inc.hpp"
 
@@ -48,6 +49,12 @@ namespace geometry
 				\param out		output stream */
 			static void printIntersectionType(const IntersectionType & it, const string & elements,
 				ostream & out = cout);
+			/*! A simple Newton method used to keep all the node on the surface
+			    \param 
+			    \param
+			*/
+			static Real newton(const std::function<Real(Real)> &f, Real x0, unsigned max_it, Real toll, Real h);
+
 	};
 }
 
