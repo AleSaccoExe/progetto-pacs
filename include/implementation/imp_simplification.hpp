@@ -283,6 +283,21 @@ namespace geometry
 		if (pointsList.empty())
 			return;
 			
+
+		// QUI COMINCIANO LE MIE AGGIUNTE
+		if(true) // Se si ha una superficie parametrizzata si tengono solo i due estremi
+		{
+			auto P = gridOperation.getCPointerToMesh()->getNode(id1);
+			auto Q = gridOperation.getCPointerToMesh()->getNode(id2);
+			vector<point> new_points;
+			for(const auto & point : pointsList)
+				if(point == P || point == Q)
+					new_points.emplace_back(point);
+			pointsList = new_points;
+		}
+
+
+
 		// Declare "local" multi-set of collapsingEdge
 		// It stores the collapse information for each 
 		// potentially valid collapsing points
