@@ -539,6 +539,7 @@ namespace geometry
 		auto pointsList = costObj.getPointsList(id1, id2);
 		if (pointsList.empty())
 			return;
+
 			
 		// Declare "local" multi-set of collapsingEdge
 		// It stores the collapse information for each 

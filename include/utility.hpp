@@ -9,6 +9,7 @@
 #include <functional>
 
 #include "inc.hpp"
+#include "point.hpp"
 
 namespace geometry
 {
@@ -49,11 +50,17 @@ namespace geometry
 				\param out		output stream */
 			static void printIntersectionType(const IntersectionType & it, const string & elements,
 				ostream & out = cout);
+
 			/*! A simple Newton method used to keep all the node on the surface
-			    \param 
-			    \param
 			*/
 			static Real newton(const std::function<Real(Real)> &f, Real x0, unsigned max_it, Real toll, Real h);
+
+			/*! The following method finds a point belonging to the surface given the vertices of the element
+			    \param P, Q 	the vertices of the element
+			    \param F 		the equation of the surface: F(x, y, z) = 0
+			*/
+			static point stayOnSurface(point P, point Q, const std::function<Real(Real, Real, Real)> & F,
+			 unsigned max_it, unsigned max_newton_it = 10, Real h = 1e-4);
 
 	};
 }
