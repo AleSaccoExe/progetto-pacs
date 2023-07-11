@@ -285,6 +285,7 @@ namespace geometry
 			
 
 		// QUI COMINCIANO LE MIE AGGIUNTE
+		
 		if(true) // Se si ha una superficie parametrizzata si tengono solo i due estremi
 		{
 			auto P = gridOperation.getCPointerToMesh()->getNode(id1);
@@ -293,8 +294,12 @@ namespace geometry
 			for(const auto & point : pointsList)
 				if(point == P || point == Q)
 					new_points.emplace_back(point);
+			std::function<Real(Real, Real, Real)> F = [](Real x, Real y, Real z)->Real{ return x*x+y*y+z*z-0.25;};
+			auto M = utility::stayOnSurface(P, Q, F, 15);
+			new_points.push_back(M);
 			pointsList = new_points;
 		}
+		
 
 
 
@@ -540,6 +545,23 @@ namespace geometry
 		if (pointsList.empty())
 			return;
 
+		// QUI COMINCIANO LE MIE AGGIUNTE
+		
+		if(true) // Se si ha una superficie parametrizzata si tengono solo i due estremi
+		{
+			auto P = gridOperation.getCPointerToMesh()->getNode(id1);
+			auto Q = gridOperation.getCPointerToMesh()->getNode(id2);
+			vector<point> new_points;
+			for(const auto & point : pointsList)
+				if(point == P || point == Q)
+					new_points.emplace_back(point);
+			std::function<Real(Real, Real, Real)> F =[](Real x, Real y, Real z)->Real{ return x*x+y*y+z*z-0.25;};
+			auto M = utility::stayOnSurface(P, Q, F, 15);
+			new_points.push_back(M);
+			pointsList = new_points;
+
+		}
+		
 			
 		// Declare "local" multi-set of collapsingEdge
 		// It stores the collapse information for each 
