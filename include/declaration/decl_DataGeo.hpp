@@ -255,7 +255,7 @@ namespace geometry
 				\param toMove	Id's of the data points involved in the collapse
 				\return			the cost */
 			Real imp_getCost(const UInt & id1, const UInt & id2, const point3d & p,
-				const vector<UInt> & toKeep, const vector<UInt> & toMove);
+				const vector<UInt> & toKeep, const vector<UInt> & toMove, Real max_cos = 0.);
 				
 			/*!	Get cost for collapsing an edge in a point.
 				The method supposes the connections have already been
@@ -271,7 +271,7 @@ namespace geometry
 				\param toMove	Id's of the data points involved in the collapse
 				\return			the cost */
 			Real imp_getCost_f(const UInt & id1, const UInt & id2, const point3d & p,
-				const vector<UInt> & toKeep, const vector<UInt> & toMove) const;
+				const vector<UInt> & toKeep, const vector<UInt> & toMove, Real max_cos = 0.) const;
 				
 			//
 			// Updating methods

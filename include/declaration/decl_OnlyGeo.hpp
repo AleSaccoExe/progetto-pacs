@@ -126,7 +126,7 @@ namespace geometry
 				\param id2	Id of second end-point of the edge
 				\param p	collapsing point
 				\return		the cost */
-			Real imp_getCost(const UInt & id1, const UInt & id2, const point3d & p) const;
+			Real imp_getCost(const UInt & id1, const UInt & id2, const point3d & p, Real max_cos = 0.) const;
 			
 			/*!	Get cost for collapsing an edge in a point.
 				The method supposes the connections have already been
@@ -140,7 +140,7 @@ namespace geometry
 				\param id2	Id of second end-point of the edge
 				\param p	collapsing point
 				\return		the cost */
-			Real imp_getCost_f(const UInt & id1, const UInt & id2, const point3d & p) const;
+			Real imp_getCost_f(const UInt & id1, const UInt & id2, const point3d & p, Real max_cos = 0.) const;
 			
 			//
 			// Updating methods

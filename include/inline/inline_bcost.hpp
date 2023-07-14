@@ -15,20 +15,20 @@ namespace geometry
 	template<>
 	INLINE Real bcost<Triangle, MeshType::GEO, OnlyGeo<MeshType::GEO>>::getCost
 		(const UInt & id1, const UInt & id2, const point3d & p, 
-		const vector<UInt> & toKeep, const vector<UInt> & toMove)
+		const vector<UInt> & toKeep, const vector<UInt> & toMove, Real max_cos)
 	{
 		return static_cast<const OnlyGeo<MeshType::GEO> *>(this)
-			->imp_getCost(id1, id2, p);
+			->imp_getCost(id1, id2, p, max_cos);
 	}
 	
 	
 	template<>
 	INLINE Real bcost<Triangle, MeshType::DATA, OnlyGeo<MeshType::DATA>>::getCost
 		(const UInt & id1, const UInt & id2, const point3d & p, 
-		const vector<UInt> & toKeep, const vector<UInt> & toMove)
+		const vector<UInt> & toKeep, const vector<UInt> & toMove, Real max_cos)
 	{
 		return static_cast<const OnlyGeo<MeshType::DATA> *>(this)
-			->imp_getCost(id1, id2, p);
+			->imp_getCost(id1, id2, p, max_cos);
 	}
 	
 	
@@ -37,10 +37,10 @@ namespace geometry
 	template<>
 	INLINE Real bcost<Triangle, MeshType::DATA, DataGeo>::getCost
 		(const UInt & id1, const UInt & id2, const point3d & p, 
-		const vector<UInt> & toKeep, const vector<UInt> & toMove)
+		const vector<UInt> & toKeep, const vector<UInt> & toMove, Real max_cos)
 	{
 		return static_cast<DataGeo *>(this)
-			->imp_getCost(id1, id2, p, toKeep, toMove);
+			->imp_getCost(id1, id2, p, toKeep, toMove, max_cos);
 	}
 	
 	
@@ -49,20 +49,20 @@ namespace geometry
 	template<>
 	INLINE Real bcost<Triangle, MeshType::GEO, OnlyGeo<MeshType::GEO>>::getCost_f
 		(const UInt & id1, const UInt & id2, const point3d & p, 
-		const vector<UInt> & toKeep, const vector<UInt> & toMove) const
+		const vector<UInt> & toKeep, const vector<UInt> & toMove, Real max_cos) const
 	{
 		return static_cast<const OnlyGeo<MeshType::GEO> *>(this)
-			->imp_getCost_f(id1, id2, p);
+			->imp_getCost_f(id1, id2, p, max_cos);
 	}
 	
 	
 	template<>
 	INLINE Real bcost<Triangle, MeshType::DATA, OnlyGeo<MeshType::DATA>>::getCost_f
 		(const UInt & id1, const UInt & id2, const point3d & p, 
-		const vector<UInt> & toKeep, const vector<UInt> & toMove) const
+		const vector<UInt> & toKeep, const vector<UInt> & toMove, Real max_cos) const
 	{
 		return static_cast<const OnlyGeo<MeshType::DATA> *>(this)
-			->imp_getCost_f(id1, id2, p);
+			->imp_getCost_f(id1, id2, p, max_cos);
 	}
 	
 	
@@ -71,10 +71,10 @@ namespace geometry
 	template<>
 	INLINE Real bcost<Triangle, MeshType::DATA, DataGeo>::getCost_f
 		(const UInt & id1, const UInt & id2, const point3d & p, 
-		const vector<UInt> & toKeep, const vector<UInt> & toMove) const
+		const vector<UInt> & toKeep, const vector<UInt> & toMove, Real max_cos) const
 	{
 		return static_cast<const DataGeo *>(this)
-			->imp_getCost_f(id1, id2, p, toKeep, toMove);
+			->imp_getCost_f(id1, id2, p, toKeep, toMove, max_cos);
 	}
 	
 	

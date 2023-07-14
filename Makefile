@@ -104,13 +104,19 @@ endif
 
 # Flags for the compiler
 ifeq ($(RELEASE),yes)
-	CXXFLAGS=-std=c++11 -DNDEBUG -O3 -ftree-vectorize -I $(LIB_INC_DIR) -I $(EIGEN_INC)
+	CXXFLAGS=-std=c++17 -DNDEBUG -O3 -ftree-vectorize -I $(LIB_INC_DIR) -I $(EIGEN_INC)
 else
-	CXXFLAGS=-std=c++11 -g -Werror -I $(LIB_INC_DIR) -I $(EIGEN_INC)
+	CXXFLAGS=-std=c++17 -g -Werror -I $(LIB_INC_DIR) -I $(EIGEN_INC)
 endif
 	
 ifeq ($(ENABLE_SELF_INTERSECTIONS),yes)
 	CXXFLAGS+= -DENABLE_SELF_INTERSECTIONS 
+endif
+
+# per aggiungere le cose scritte da me
+
+ifeq ($(MIE_AGGIUNTE),yes)
+	CXXFLAGS+= -DMIE_AGGIUNTE
 endif
 	
 # Flags for the linker for the library

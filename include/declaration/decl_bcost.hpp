@@ -107,7 +107,8 @@ namespace geometry
 				then the class bcost is in charge of forwarding the right number
 				of arguments to the implementation. */
 			Real getCost(const UInt & id1, const UInt & id2, const point3d & p, 
-				const vector<UInt> & toKeep = {}, const vector<UInt> & toMove = {});
+				const vector<UInt> & toKeep = {}, const vector<UInt> & toMove = {}, Real max_cos = 0.); // metodo modificato da me
+
 				
 			/*!	Get cost for collapsing an edge in a point without keeping
 				track of the resulting cost(s) for future class updates. Indeed,
@@ -130,7 +131,7 @@ namespace geometry
 				then the class bcost is in charge of forwarding the right number
 				of arguments to the implementation. */
 			Real getCost_f(const UInt & id1, const UInt & id2, const point3d & p, 
-				const vector<UInt> & toKeep = {}, const vector<UInt> & toMove = {}) const;
+				const vector<UInt> & toKeep = {}, const vector<UInt> & toMove = {}, Real max_cos=0.) const;
 						
 			//
 			// Updating methods

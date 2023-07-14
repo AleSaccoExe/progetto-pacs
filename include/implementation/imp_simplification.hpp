@@ -285,8 +285,9 @@ namespace geometry
 			
 
 		// QUI COMINCIANO LE MIE AGGIUNTE
-		
-		if(true) // Se si ha una superficie parametrizzata si tengono solo i due estremi
+		Real max_cos=0.; // da usare per modificare il costo del lato
+		#ifdef MIE_AGGIUNTE
+		if(true && pointsList.size()>1) // Se si ha una superficie parametrizzata si tengono solo i due estremi
 		{
 			auto P = gridOperation.getCPointerToMesh()->getNode(id1);
 			auto Q = gridOperation.getCPointerToMesh()->getNode(id2);
@@ -294,13 +295,37 @@ namespace geometry
 			for(const auto & point : pointsList)
 				if(point == P || point == Q)
 					new_points.emplace_back(point);
-			std::function<Real(Real, Real, Real)> F = [](Real x, Real y, Real z)->Real{ return x*x+y*y+z*z-0.25;};
+			std::function<Real(Real, Real, Real)> F = [](Real x, Real y, Real z)->Real{ return x*x+y*y+z*z-1.;};
 			auto M = utility::stayOnSurface(P, Q, F, 15);
 			new_points.push_back(M);
 			pointsList = new_points;
 		}
 		
-
+		if constexpr(std::is_same<CostClass, DataGeo>::value) // se CostClass è DataGeo, si trova il coseno massimo
+		{
+			
+			auto elems = gridOperation.getElemsInvolvedInEdgeCollapsing(id1, id2);
+			for(const auto & id_elem:elems)
+			{
+				auto elem = gridOperation.getCPointerToMesh()->getElem(id_elem);
+				auto l1 = gridOperation.getCPointerToMesh()->getNode(elem[1]) - 
+					gridOperation.getCPointerToMesh()->getNode(elem[0]);
+				auto l2 = gridOperation.getCPointerToMesh()->getNode(elem[2]) - 
+					gridOperation.getCPointerToMesh()->getNode(elem[1]);
+				auto l3 = gridOperation.getCPointerToMesh()->getNode(elem[0]) - 
+					gridOperation.getCPointerToMesh()->getNode(elem[2]);
+				Real cos0 = -(l1*l3)/(l1.norm2()*l3.norm2());
+				Real cos1 = -(l1*l2)/(l1.norm2()*l2.norm2());
+				Real cos2 = -(l2*l3)/(l2.norm2()*l3.norm2());
+				if(cos0>max_cos)
+					max_cos=cos0;
+				if(cos1>max_cos)
+					max_cos=cos1;
+				if(cos2>max_cos)
+					max_cos=cos2;
+			}
+		}
+		#endif // MIE_AGGIUNTE
 
 
 		// Declare "local" multi-set of collapsingEdge
@@ -404,9 +429,16 @@ namespace geometry
 			//
 			
 			if (valid)
-			{
-				auto cost = costObj.getCost(id1, id2, pointsList[i], toKeep, toMove);
-				collapsingSet_l.emplace(id1, id2, cost, pointsList[i]);
+			{	if constexpr(std::is_same<CostClass, DataGeo>::value)
+				{
+					auto cost = costObj.getCost(id1, id2, pointsList[i], toKeep, toMove, max_cos);
+					collapsingSet_l.emplace(id1, id2, cost, pointsList[i]);
+				}
+				else
+				{
+					auto cost = costObj.getCost(id1, id2, pointsList[i], toKeep, toMove);
+					collapsingSet_l.emplace(id1, id2, cost, pointsList[i]);
+				}
 			}
 			
 			//
@@ -546,8 +578,9 @@ namespace geometry
 			return;
 
 		// QUI COMINCIANO LE MIE AGGIUNTE
-		
-		if(true) // Se si ha una superficie parametrizzata si tengono solo i due estremi
+		Real max_cos=0.; // da usare per modificare il costo del lato
+		#ifdef MIE_AGGIUNTE
+		if(true && pointsList.size()>1) // Se si ha una superficie parametrizzata si tengono solo i due estremi
 		{
 			auto P = gridOperation.getCPointerToMesh()->getNode(id1);
 			auto Q = gridOperation.getCPointerToMesh()->getNode(id2);
@@ -555,12 +588,39 @@ namespace geometry
 			for(const auto & point : pointsList)
 				if(point == P || point == Q)
 					new_points.emplace_back(point);
-			std::function<Real(Real, Real, Real)> F =[](Real x, Real y, Real z)->Real{ return x*x+y*y+z*z-0.25;};
+			std::function<Real(Real, Real, Real)> F =[](Real x, Real y, Real z)->Real{ return x*x+y*y+z*z-1.;};
 			auto M = utility::stayOnSurface(P, Q, F, 15);
 			new_points.push_back(M);
 			pointsList = new_points;
 
 		}
+		
+		if constexpr(std::is_same<CostClass, DataGeo>::value) // se CostClass è DataGeo, si trova il coseno massimo
+		{
+			
+			auto elems = gridOperation.getElemsInvolvedInEdgeCollapsing(id1, id2);
+			for(const auto & id_elem:elems)
+			{
+				auto elem = gridOperation.getCPointerToMesh()->getElem(id_elem);
+				auto l1 = gridOperation.getCPointerToMesh()->getNode(elem[1]) - 
+					gridOperation.getCPointerToMesh()->getNode(elem[0]);
+				auto l2 = gridOperation.getCPointerToMesh()->getNode(elem[2]) - 
+					gridOperation.getCPointerToMesh()->getNode(elem[1]);
+				auto l3 = gridOperation.getCPointerToMesh()->getNode(elem[0]) - 
+					gridOperation.getCPointerToMesh()->getNode(elem[2]);
+				Real cos0 = -(l1*l3)/(l1.norm2()*l3.norm2());
+				Real cos1 = -(l1*l2)/(l1.norm2()*l2.norm2());
+				Real cos2 = -(l2*l3)/(l2.norm2()*l3.norm2());
+				if(cos0>max_cos)
+					max_cos=cos0;
+				if(cos1>max_cos)
+					max_cos=cos1;
+				if(cos2>max_cos)
+					max_cos=cos2;
+			}
+		}
+		#endif // MIE_AGGIUNTE
+
 		
 			
 		// Declare "local" multi-set of collapsingEdge

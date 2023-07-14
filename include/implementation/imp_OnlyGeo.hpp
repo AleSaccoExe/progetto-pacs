@@ -237,14 +237,14 @@ namespace geometry
 	
 	
 	template<MeshType MT>
-	INLINE Real OnlyGeo<MT>::imp_getCost(const UInt & id1, const UInt & id2, const point3d & p) const
+	INLINE Real OnlyGeo<MT>::imp_getCost(const UInt & id1, const UInt & id2, const point3d & p, Real max_cos) const
 	{
-		return imp_getCost_f(id1, id2, p);
+		return imp_getCost_f(id1, id2, p, max_cos);
 	}
 	
 	
 	template<MeshType MT>
-	Real OnlyGeo<MT>::imp_getCost_f(const UInt & id1, const UInt & id2, const point3d & p) const
+	Real OnlyGeo<MT>::imp_getCost_f(const UInt & id1, const UInt & id2, const point3d & p, Real max_cos) const
 	{
 		// Extract the matrix Q associated to the edge
 		auto Q = Qs[id1] + Qs[id2];
