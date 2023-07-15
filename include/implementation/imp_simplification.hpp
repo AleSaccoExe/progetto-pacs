@@ -300,30 +300,9 @@ namespace geometry
 			new_points.push_back(M);
 			pointsList = new_points;
 		}
-		
 		if constexpr(std::is_same<CostClass, DataGeo>::value) // se CostClass è DataGeo, si trova il coseno massimo
 		{
-			
-			auto elems = gridOperation.getElemsInvolvedInEdgeCollapsing(id1, id2);
-			for(const auto & id_elem:elems)
-			{
-				auto elem = gridOperation.getCPointerToMesh()->getElem(id_elem);
-				auto l1 = gridOperation.getCPointerToMesh()->getNode(elem[1]) - 
-					gridOperation.getCPointerToMesh()->getNode(elem[0]);
-				auto l2 = gridOperation.getCPointerToMesh()->getNode(elem[2]) - 
-					gridOperation.getCPointerToMesh()->getNode(elem[1]);
-				auto l3 = gridOperation.getCPointerToMesh()->getNode(elem[0]) - 
-					gridOperation.getCPointerToMesh()->getNode(elem[2]);
-				Real cos0 = -(l1*l3)/(l1.norm2()*l3.norm2());
-				Real cos1 = -(l1*l2)/(l1.norm2()*l2.norm2());
-				Real cos2 = -(l2*l3)/(l2.norm2()*l3.norm2());
-				if(cos0>max_cos)
-					max_cos=cos0;
-				if(cos1>max_cos)
-					max_cos=cos1;
-				if(cos2>max_cos)
-					max_cos=cos2;
-			}
+			max_cos = gridOperation.computeMaxCos(id1, id2);
 		}
 		#endif // MIE_AGGIUNTE
 
@@ -597,27 +576,7 @@ namespace geometry
 		
 		if constexpr(std::is_same<CostClass, DataGeo>::value) // se CostClass è DataGeo, si trova il coseno massimo
 		{
-			
-			auto elems = gridOperation.getElemsInvolvedInEdgeCollapsing(id1, id2);
-			for(const auto & id_elem:elems)
-			{
-				auto elem = gridOperation.getCPointerToMesh()->getElem(id_elem);
-				auto l1 = gridOperation.getCPointerToMesh()->getNode(elem[1]) - 
-					gridOperation.getCPointerToMesh()->getNode(elem[0]);
-				auto l2 = gridOperation.getCPointerToMesh()->getNode(elem[2]) - 
-					gridOperation.getCPointerToMesh()->getNode(elem[1]);
-				auto l3 = gridOperation.getCPointerToMesh()->getNode(elem[0]) - 
-					gridOperation.getCPointerToMesh()->getNode(elem[2]);
-				Real cos0 = -(l1*l3)/(l1.norm2()*l3.norm2());
-				Real cos1 = -(l1*l2)/(l1.norm2()*l2.norm2());
-				Real cos2 = -(l2*l3)/(l2.norm2()*l3.norm2());
-				if(cos0>max_cos)
-					max_cos=cos0;
-				if(cos1>max_cos)
-					max_cos=cos1;
-				if(cos2>max_cos)
-					max_cos=cos2;
-			}
+			max_cos = gridOperation.computeMaxCos(id1, id2);
 		}
 		#endif // MIE_AGGIUNTE
 
@@ -1175,7 +1134,8 @@ namespace geometry
 	template<MeshType MT, typename CostClass>
 	void simplification<Triangle, MT, CostClass>::simplify(const UInt & numNodesMax,
 		const bool & enableDontTouch, const string & file)
-	{				
+	{
+		std::cout<<"dentro a simplify\n";
 		// Check if the current number of nodes is below the threshold
 		auto numNodesStart(gridOperation.getCPointerToMesh()->getNumNodes());
 		if (numNodesMax >= numNodesStart)

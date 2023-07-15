@@ -225,6 +225,8 @@ namespace geometry
 			
 			/*!	Set the boundary flag for all nodes. */
 			void setBoundary();
+
+			Real computeMaxCos(const UInt & id1, const UInt & id2) const;
 	};
 }
 

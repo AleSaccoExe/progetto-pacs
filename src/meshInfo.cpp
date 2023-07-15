@@ -101,4 +101,28 @@ namespace geometry
 		else
 			throw runtime_error(filename + " can not be opened.");
 	}
+
+	template<>
+	Real meshInfo<Triangle, MeshType::DATA>::computeMaxCos(const UInt & id1, const UInt & id2) const
+	{
+		Real max_cos=0.;
+		auto elems = getElemsInvolvedInEdgeCollapsing(id1, id2);
+			for(const auto & id_elem:elems)
+			{
+				auto elem = getCPointerToMesh()->getElem(id_elem);
+				auto l1 = getCPointerToMesh()->getNode(elem[1]) - getCPointerToMesh()->getNode(elem[0]);
+				auto l2 = getCPointerToMesh()->getNode(elem[2]) - getCPointerToMesh()->getNode(elem[1]);
+				auto l3 = getCPointerToMesh()->getNode(elem[0]) - getCPointerToMesh()->getNode(elem[2]);
+				Real cos0 = -(l1*l3)/(l1.norm2()*l3.norm2());
+				Real cos1 = -(l1*l2)/(l1.norm2()*l2.norm2());
+				Real cos2 = -(l2*l3)/(l2.norm2()*l3.norm2());
+				if(cos0>max_cos)
+					max_cos=cos0;
+				if(cos1>max_cos)
+					max_cos=cos1;
+				if(cos2>max_cos)
+					max_cos=cos2;
+			}
+		return max_cos;
+	}
 }

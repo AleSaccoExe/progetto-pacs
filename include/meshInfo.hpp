@@ -156,6 +156,8 @@ namespace geometry
 				\return		TRUE if no data points are associated to the element,
 							FALSE otherwise */
 			bool isEmpty(const UInt & Id) const;
+
+			Real computeMaxCos(const UInt & id1, const UInt & id2) const;
 			
 		protected:
 			//

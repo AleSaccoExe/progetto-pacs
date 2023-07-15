@@ -546,25 +546,7 @@ namespace geometry
 		auto P(oprtr->getCPointerToMesh()->getNode(id1)); // posizione del nodo id1
 		oprtr->getPointerToMesh()->setNode(id1, p);
 		Real new_max_cos=0.;
-		for(const auto & id_elem:elems)
-			{
-				auto elem = oprtr->getCPointerToMesh()->getElem(id_elem);
-				auto l1 = oprtr->getCPointerToMesh()->getNode(elem[1]) - 
-					oprtr->getCPointerToMesh()->getNode(elem[0]);
-				auto l2 = oprtr->getCPointerToMesh()->getNode(elem[2]) - 
-					oprtr->getCPointerToMesh()->getNode(elem[1]);
-				auto l3 = oprtr->getCPointerToMesh()->getNode(elem[0]) - 
-					oprtr->getCPointerToMesh()->getNode(elem[2]);
-				Real cos0 = -(l1*l3)/(l1.norm2()*l3.norm2());
-				Real cos1 = -(l1*l2)/(l1.norm2()*l2.norm2());
-				Real cos2 = -(l2*l3)/(l2.norm2()*l3.norm2());
-				if(cos0>new_max_cos)
-					new_max_cos=cos0;
-				if(cos1>new_max_cos)
-					new_max_cos=cos1;
-				if(cos2>new_max_cos)
-					new_max_cos=cos2;
-			}
+		new_max_cos = oprtr->computeMaxCos(id1, id2);
 		oprtr->getPointerToMesh()->setNode(id1, P); // dopo il calcolo di new_max_cos viene ripristinata la posizione di id1
 		Real sin_ratio = (1.-max_cos*max_cos)/(1.-new_max_cos*new_max_cos);
 		Real deg_penalty = 1./tanh(sin_ratio)-1./sin_ratio;
@@ -647,25 +629,7 @@ namespace geometry
 		auto P(oprtr->getCPointerToMesh()->getNode(id1)); // posizione del nodo id1
 		oprtr->getPointerToMesh()->setNode(id1, p);
 		Real new_max_cos=0.;
-		for(const auto & id_elem:elems)
-			{
-				auto elem = oprtr->getCPointerToMesh()->getElem(id_elem);
-				auto l1 = oprtr->getCPointerToMesh()->getNode(elem[1]) - 
-					oprtr->getCPointerToMesh()->getNode(elem[0]);
-				auto l2 = oprtr->getCPointerToMesh()->getNode(elem[2]) - 
-					oprtr->getCPointerToMesh()->getNode(elem[1]);
-				auto l3 = oprtr->getCPointerToMesh()->getNode(elem[0]) - 
-					oprtr->getCPointerToMesh()->getNode(elem[2]);
-				Real cos0 = -(l1*l3)/(l1.norm2()*l3.norm2());
-				Real cos1 = -(l1*l2)/(l1.norm2()*l2.norm2());
-				Real cos2 = -(l2*l3)/(l2.norm2()*l3.norm2());
-				if(cos0>new_max_cos)
-					new_max_cos=cos0;
-				if(cos1>new_max_cos)
-					new_max_cos=cos1;
-				if(cos2>new_max_cos)
-					new_max_cos=cos2;
-			}
+		new_max_cos = oprtr->computeMaxCos(id1, id2);
 		oprtr->getPointerToMesh()->setNode(id1, P); // dopo il calcolo di new_max_cos viene ripristinata la posizione di id1
 		Real sin_ratio = (1.-max_cos*max_cos)/(1.-new_max_cos*new_max_cos);
 		Real deg_penalty = 1./tanh(sin_ratio)-1./sin_ratio;

@@ -522,6 +522,8 @@ namespace geometry
 		for (UInt id = 0; id < connectivity.grid.getNodesListSize(); id++)
 			this->setBoundary(id);
 	}
+
+
 }
 
 #endif
