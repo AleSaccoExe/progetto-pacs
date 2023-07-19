@@ -43,6 +43,13 @@ namespace geometry
 		bmeshInfo<SHAPE, MeshType::DATA>(args...)
 	{
 	}
+
+	/*template<typename SHAPE>
+	meshInfo<SHAPE, MeshType::DATA>::meshInfo(const MatrixXd & nds, const MatrixXi & els, const MatrixXd & loc, 
+														const VectorXd & val): // NUOVO
+			bmeshInfo<SHAPE, MeshType::DATA>(nds, els, loc, val)
+	{
+	}*/
 		
 	
 	//
@@ -219,7 +226,6 @@ namespace geometry
 			else
 				Nt += 1./patch;
 		}
-		
 		return Nt;
 	}
 	

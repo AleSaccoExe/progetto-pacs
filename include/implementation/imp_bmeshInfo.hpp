@@ -39,7 +39,14 @@ namespace geometry
 	//
 	// Constructors
 	//
-	
+	/*template<typename SHAPE, MeshType MT>
+	bmeshInfo<SHAPE, MT>::bmeshInfo(const MatrixXd & nds, const MatrixXi & els, const MatrixXd & loc, 
+														const VectorXd & val): //NUOVO
+		connectivity(nds, els, loc, val)
+	{
+		setBoundary();
+	}*/
+
 	template<typename SHAPE, MeshType MT>
 	bmeshInfo<SHAPE,MT>::bmeshInfo(const bmesh<SHAPE> & bg) :
 		connectivity(bg)
@@ -521,6 +528,25 @@ namespace geometry
 	{
 		for (UInt id = 0; id < connectivity.grid.getNodesListSize(); id++)
 			this->setBoundary(id);
+	}
+
+	template<typename SHAPE, MeshType MT>
+	Real bmeshInfo<SHAPE, MT>::getDiam(const UInt & id) const
+	{
+		Real max=0.;
+		auto elem = getCPointerToMesh()->getElem(id);
+		for(unsigned i =0; i<NV; ++i)
+		{
+			auto P = getCPointerToMesh()->getNode(elem[i]);
+			for(unsigned j=0; j<NV; ++j)
+			{
+				auto Q = getCPointerToMesh()->getNode(elem[j]);
+				Real curr_length = (P-Q).norm2();
+				if(curr_length>max)
+					max = curr_length;
+			}
+		}
+		return max;
 	}
 
 

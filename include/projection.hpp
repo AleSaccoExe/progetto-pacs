@@ -39,7 +39,10 @@ namespace geometry
 			//
 			// Constructors
 			//
-			
+
+			/*projection(const MatrixXd & nds, const MatrixXi & els, const MatrixXd & loc, 
+														const VectorXd & val = VectorXd()); // NUOVO
+			*/
 			/*!	Synthetic default constructor. */
 			projection() = default;
 			

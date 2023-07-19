@@ -33,6 +33,14 @@ namespace geometry
 		buildNode2Elem();
 	}
 	
+	/*template<typename SHAPE, MeshType MT>
+	bconnect<SHAPE, MT>::bconnect(const MatrixXd & nds, const MatrixXi & els, const MatrixXd & loc, 
+														const VectorXd & val): // NUOVO
+		grid(nds, els, loc, val)
+	{
+		buildNode2Node();
+		buildNode2Elem();
+	}*/
 	
 	//
 	// Initialize and clear connections
@@ -44,6 +52,7 @@ namespace geometry
 		// Clear and reserve memory
 		edges.clear();
 		node2node.clear();
+		
 		node2node.reserve(grid.getNumNodes());
 					
 		// Set nodes Id's
@@ -80,6 +89,7 @@ namespace geometry
 	template<typename SHAPE, MeshType MT>
 	void bconnect<SHAPE,MT>::buildNode2Elem()
 	{
+		std::cout<<"dentro buildnode2elem\n";
 		// Reserve memory
 		node2elem.clear();
 		node2elem.reserve(grid.getNumNodes());

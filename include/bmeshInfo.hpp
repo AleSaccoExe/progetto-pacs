@@ -41,7 +41,10 @@ namespace geometry
 			//
 			// Constructors
 			//
-			
+
+			/*bmeshInfo(const MatrixXd & nds, const MatrixXi & els, const MatrixXd & loc, 
+														const VectorXd & val = VectorXd()); // NUOVO
+			*/
 			/*!	Synthetic default constructor. */
 			bmeshInfo() = default;
 			
@@ -183,7 +186,7 @@ namespace geometry
 				
 				\param Id	element Id
 				\return		its normal */
-			point3d getNormal(const UInt & Id) const;
+			point3d getNormal(const UInt & Id) const; 
 			
 			/*!	Get the North-East vertex of the bounding box 
 				surrounding the grid.
@@ -226,7 +229,8 @@ namespace geometry
 			/*!	Set the boundary flag for all nodes. */
 			void setBoundary();
 
-			Real computeMaxCos(const UInt & id1, const UInt & id2) const;
+			Real getDiam(const UInt & id) const;
+			
 	};
 }
 

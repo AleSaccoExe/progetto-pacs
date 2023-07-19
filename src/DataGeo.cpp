@@ -27,8 +27,8 @@ namespace geometry
 	//
 	
 	DataGeo::DataGeo(bmeshOperation<Triangle, MeshType::DATA> * bmo,
-		const Real & a, const Real & b, const Real & c) :
-		bcost<Triangle, MeshType::DATA, DataGeo>(bmo), weight{{a,b,c}}, to_update(false)
+		const Real & a, const Real & b, const Real & c, const Real & d) :
+		bcost<Triangle, MeshType::DATA, DataGeo>(bmo), weight{{a,b,c,d}}, to_update(false)
 	{
 		// Create list of Q matrices
 		buildQs();
@@ -44,8 +44,8 @@ namespace geometry
 	}
 	
 	
-	DataGeo::DataGeo(const Real & a, const Real & b, const Real & c) :
-		bcost<Triangle, MeshType::DATA, DataGeo>(), weight{{a,b,c}}, to_update(false)
+	DataGeo::DataGeo(const Real & a, const Real & b, const Real & c, const Real & d) :
+		bcost<Triangle, MeshType::DATA, DataGeo>(), weight{{a,b,c,d}}, to_update(false)
 	{
 	}
 	
@@ -162,7 +162,7 @@ namespace geometry
 	{
 		assert(this->oprtr != nullptr);
 		
-		// Set number of elements
+		// Set number of elements 
 		numElems = this->oprtr->getCPointerToMesh()->getElemsListSize();
 		
 		// Reserve memory
@@ -546,10 +546,28 @@ namespace geometry
 		auto P(oprtr->getCPointerToMesh()->getNode(id1)); // posizione del nodo id1
 		oprtr->getPointerToMesh()->setNode(id1, p);
 		Real new_max_cos=0.;
-		new_max_cos = oprtr->computeMaxCos(id1, id2);
+		for(const auto & id_elem:elems)
+			{
+				auto elem = oprtr->getCPointerToMesh()->getElem(id_elem);
+				auto l1 = oprtr->getCPointerToMesh()->getNode(elem[1]) - 
+				oprtr->getCPointerToMesh()->getNode(elem[0]);
+				auto l2 = oprtr->getCPointerToMesh()->getNode(elem[2]) - 
+				oprtr->getCPointerToMesh()->getNode(elem[1]);
+				auto l3 = oprtr->getCPointerToMesh()->getNode(elem[0]) - 
+				oprtr->getCPointerToMesh()->getNode(elem[2]);
+				Real cos0 = -(l1*l3)/(l1.norm2()*l3.norm2());
+				Real cos1 = -(l1*l2)/(l1.norm2()*l2.norm2());
+				Real cos2 = -(l2*l3)/(l2.norm2()*l3.norm2());
+				if(cos0>new_max_cos)
+					new_max_cos=cos0;
+				if(cos1>new_max_cos)
+					new_max_cos=cos1; 
+				if(cos2>new_max_cos)
+					new_max_cos=cos2; 
+			}
 		oprtr->getPointerToMesh()->setNode(id1, P); // dopo il calcolo di new_max_cos viene ripristinata la posizione di id1
 		Real sin_ratio = (1.-max_cos*max_cos)/(1.-new_max_cos*new_max_cos);
-		Real deg_penalty = 1./tanh(sin_ratio)-1./sin_ratio;
+		Real deg_penalty = 1./tanh(0.5*sin_ratio)-1./(sin_ratio*0.5);   
 
 		//
 		// Compute geometric cost function
@@ -613,10 +631,10 @@ namespace geometry
 		// Final cost
 		//
 		#ifdef MIE_AGGIUNTE
-		return 0.25*3.*(weight[0] * geo / maxCost[0] + weight[1] * disp / maxCost[1]
-			+ weight[2] * equi / maxCost[2]) + 0.25*deg_penalty;
+		return (weight[0] * geo / maxCost[0] + weight[1] * disp / maxCost[1]
+			+ weight[2] * equi / maxCost[2]) + weight[3]*deg_penalty;
 		#else
-		return 0.25*(weight[0] * geo / maxCost[0] + weight[1] * disp / maxCost[1]
+		return (weight[0] * geo / maxCost[0] + weight[1] * disp / maxCost[1]
 			+ weight[2] * equi / maxCost[2]);
 		#endif
 	}
@@ -629,7 +647,27 @@ namespace geometry
 		auto P(oprtr->getCPointerToMesh()->getNode(id1)); // posizione del nodo id1
 		oprtr->getPointerToMesh()->setNode(id1, p);
 		Real new_max_cos=0.;
-		new_max_cos = oprtr->computeMaxCos(id1, id2);
+		
+		for(const auto & id_elem:elems)
+			{
+				auto elem = oprtr->getCPointerToMesh()->getElem(id_elem);
+				auto l1 = oprtr->getCPointerToMesh()->getNode(elem[1]) - 
+				oprtr->getCPointerToMesh()->getNode(elem[0]);
+				auto l2 = oprtr->getCPointerToMesh()->getNode(elem[2]) - 
+				oprtr->getCPointerToMesh()->getNode(elem[1]);
+				auto l3 = oprtr->getCPointerToMesh()->getNode(elem[0]) - 
+				oprtr->getCPointerToMesh()->getNode(elem[2]);
+				Real cos0 = -(l1*l3)/(l1.norm2()*l3.norm2());
+				Real cos1 = -(l1*l2)/(l1.norm2()*l2.norm2());
+				Real cos2 = -(l2*l3)/(l2.norm2()*l3.norm2());
+				if(cos0>new_max_cos)
+					new_max_cos=cos0;
+				if(cos1>new_max_cos)
+					new_max_cos=cos1;
+				if(cos2>new_max_cos)
+					new_max_cos=cos2; 
+			}
+
 		oprtr->getPointerToMesh()->setNode(id1, P); // dopo il calcolo di new_max_cos viene ripristinata la posizione di id1
 		Real sin_ratio = (1.-max_cos*max_cos)/(1.-new_max_cos*new_max_cos);
 		Real deg_penalty = 1./tanh(sin_ratio)-1./sin_ratio;
@@ -679,13 +717,12 @@ namespace geometry
 		
 		// Average over all involved elements
 		equi /= toKeep.size();
-		
 		//
 		// Final cost
 		//
 		#ifdef MIE_AGGIUNTE
-		return 0.25*3.*(weight[0] * geo / maxCost[0] + weight[1] * disp / maxCost[1]
-			+ weight[2] * equi / maxCost[2])+0.25*deg_penalty;
+		return weight[0] * geo / maxCost[0] + weight[1] * disp / maxCost[1]
+			+ weight[2] * equi / maxCost[2]+weight[3]*deg_penalty;
 		#else
 		return 0.25*(weight[0] * geo / maxCost[0] + weight[1] * disp / maxCost[1]
 			+ weight[2] * equi / maxCost[2]);

@@ -19,6 +19,12 @@ namespace geometry
 		meshInfo<Triangle, MeshType::DATA>(bg)
 	{
 	}
+
+	/*projection<Triangle>::projection(const MatrixXd & nds, const MatrixXi & els, const MatrixXd & loc, 
+														const VectorXd & val): // NUOVO
+		meshInfo<Triangle, MeshType::DATA>(nds, els, loc, val)
+	{
+	}*/
 	
 	
 	//

@@ -61,7 +61,7 @@ namespace geometry
 			
 			/*!	Weights for the geometric, data displacement and data 
 				distribution cost functions. */
-			array<Real,3> weight;
+			array<Real,4> weight;
 			
 			/*!	Variables keeping track, for each edge, of the minimum for 
 				each component. These values will be useful when checking 
@@ -83,13 +83,13 @@ namespace geometry
 				\param b	coefficient for data displacement cost function
 				\param c	coefficient for data distribution cost function */
 			DataGeo(bmeshOperation<Triangle, MeshType::DATA> * bmo = nullptr,
-				const Real & a = 1./3., const Real & b = 1./3., const Real & c = 1./3.);
+				const Real & a = 1./3., const Real & b = 1./3., const Real & c = 1./3., const Real & d = 0.);
 				
 			/*!	Constructor.
 				\param a	coefficient for geometric cost function
 				\param b	coefficient for data displacement cost function
 				\param c	coefficient for data distribution cost function */
-			DataGeo(const Real & a, const Real & b, const Real & c);
+			DataGeo(const Real & a, const Real & b, const Real & c, const Real & d);
 				
 			//
 			// Access members

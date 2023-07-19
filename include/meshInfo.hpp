@@ -49,6 +49,8 @@ namespace geometry
 				\sa mesh.hpp */
 			template<typename... Args>
 			meshInfo(Args... args);
+
+			
 	};
 	
 	/*!	Partial specialization for grids with distributed data. */
@@ -73,7 +75,10 @@ namespace geometry
 				\sa mesh.hpp */
 			template<typename... Args>
 			meshInfo(Args... args);
-						
+
+			/*meshInfo(const MatrixXd & nds, const MatrixXi & els, const MatrixXd & loc, 
+														const VectorXd & val = VectorXd()); // NUOVO
+			*/			
 			//
 			// Print methods
 			//
@@ -158,6 +163,8 @@ namespace geometry
 			bool isEmpty(const UInt & Id) const;
 
 			Real computeMaxCos(const UInt & id1, const UInt & id2) const;
+
+			Real computeMaxCos(const UInt & id_elem) const;
 			
 		protected:
 			//

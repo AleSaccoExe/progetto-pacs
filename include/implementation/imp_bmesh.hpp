@@ -77,10 +77,12 @@ namespace geometry
 		// Initialize elements list
 		elems.reserve(numElems);
 		array<UInt,NV> ids;
+		std::cout<<"numero di elementi: "<<numElems<<"\n";
 		for (UInt i = 0; i < numElems; ++i)
 		{
-			for (UInt j = 0; j < NV; ++j)
+			for (UInt j = 0; j < NV; ++j){
 				ids[j] = UInt(els(i,j));
+			}
 			elems.emplace_back(ids, i);
 		}
 	}

@@ -1,7 +1,7 @@
 #include "simplification.hpp"
 #include <fstream>
 #include <sstream>
-
+using namespace Eigen;
 /*
 void read_triangles(Eigen::Matrix<int, 6190, 3> & triangles, const std::string & file_name)
 {
@@ -53,19 +53,19 @@ void read_data(Eigen::Matrix<double, 4000, 3> & data, int j, const std::string &
 		data(i, j) = std::stod(coord);
 		++i;
 	}
-}*/
+}
 
 Eigen::MatrixXd read_data(const Eigen::Matrix<double,5040 ,3 > &nodes, double tol)
 {
 	using namespace geometry;
-	std::ifstream file_x("x.inp");
-	std::ifstream file_y("y.inp");
-	std::ifstream file_z("z.inp");
+	std::ifstream file_x("prove-mie/x.inp");
+	std::ifstream file_y("prove-mie/y.inp");
+	std::ifstream file_z("prove-mie/z.inp");
 	std::string x, y, z;
 	unsigned valid_data = 0;
 	std::vector<point> valid_data_vec;
 	unsigned k =0;
-	while( getline(file_x, x) && k<3500 )
+	while( getline(file_x, x) )
 	{
 		getline(file_y, y);
 		getline(file_z, z);
@@ -95,9 +95,9 @@ Eigen::MatrixXd read_data(const Eigen::Matrix<double,5040 ,3 > &nodes, double to
 	return ret_mat;
 }
 
-void read_mesh(Eigen::Matrix<double, 5040, 3> & vertices, Eigen::Matrix<int, 10076, 3> & triangles)
+void read_mesh(Eigen::Matrix<double, 10076, 3> & vertices, Eigen::Matrix<int, 5040, 3> & triangles)
 {
-	std::ifstream file("sfera.inp");
+	std::ifstream file("prove-mie/sfera.inp");
 	std::string line;
 	getline(file, line);
 	for(unsigned i=0; i<5040; ++i)
@@ -127,6 +127,31 @@ void read_mesh(Eigen::Matrix<double, 5040, 3> & vertices, Eigen::Matrix<int, 100
 		}
 	}
 
+}*/
+
+Eigen::Matrix<double, Dynamic, 3> read_data(const std::string & file_name)
+{
+	std::ifstream file(file_name);
+	std::string line;
+	getline(file, line);
+	std::istringstream ss(line);
+	unsigned n_data;
+	ss>>n_data;
+	Eigen::Matrix<double, Dynamic, 3> data;
+	data.resize(n_data, 3);
+	unsigned i=0;
+	while(getline(file, line))
+	{
+		std::istringstream ss(line);
+		for(unsigned j =0; j<3; ++j)
+		{
+			double coord;
+			ss>>coord;
+			data(i, j) = coord;
+		}
+		++i;
+	}
+	return data;
 }
 
 void print(const Eigen::MatrixXd m)
@@ -143,12 +168,56 @@ int main()
 	Eigen::Matrix<int, 10076, 3> triangles;
 	Eigen::Matrix<double, 5040, 3> vertices;
 	std::cout<<"\nReading the mesh...\n";
-	read_mesh(vertices, triangles);
+
+
+	std::ifstream file("prove-mie/sfera.inp");
+	std::string line;
+	getline(file, line);
+	for(unsigned i=0; i<5040; ++i)
+	{
+		getline(file, line);
+		std::istringstream ss(line);
+		double coord;
+		ss>>coord;
+		for(unsigned j=0; j<3; ++j)
+		{
+			ss>>coord;
+			vertices(i, j) = coord;
+		}
+	}
+	
+	for(unsigned i=0; i<10076; ++i)
+
+	{
+		getline(file, line);
+		std::istringstream ss(line);
+		int n_ver;
+		std::string useless;
+		for(unsigned j=0; j<3; ++j)
+			ss>>useless;
+		for(unsigned j=0; j<3; ++j)
+		{
+			ss>>n_ver;
+			triangles(i, j) = n_ver-1;
+		}
+	}
+
+	// read_mesh(vertices, triangles);
 	std::cout<<"Reading the data points..\n";
-	Eigen::Matrix<double, Dynamic, 3> data(read_data(vertices, 0.1));
+	Eigen::Matrix<double, Dynamic, 3> data(read_data("prove-mie/terremoti-miei.inp"));
 	print(data);
-	simplification<Triangle, MeshType::DATA, DataGeo> simplifier(vertices, triangles, vertices);
+	print(static_cast<Matrix<double, Dynamic, 3>>(vertices));
+	Eigen::MatrixXd concatenated(data.rows() + vertices.rows(), data.cols());
+    concatenated << vertices,
+                    data;
+
+	simplification<Triangle, MeshType::DATA, DataGeo> simplifier(static_cast<Matrix<double, Dynamic, Dynamic>>(vertices), 
+																 static_cast<Matrix<int, Dynamic, Dynamic>>(triangles),
+																 static_cast<Matrix<double, Dynamic,Dynamic>>(data), 
+																 0.25, 0.25, 0.25, 0.25);
+	// simplification<Triangle, MeshType::DATA, DataGeo> simplifier("prove-mie/sfera.inp");
 	simplifier.simplify(350, true, "earthquakes.txt");
+	
 
 	return 0;
 

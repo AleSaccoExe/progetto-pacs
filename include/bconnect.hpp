@@ -79,6 +79,10 @@ namespace geometry
 				\sa mesh.hpp */
 			template<typename... Args>
 			bconnect(Args... args);
+
+			/*bconnect(const MatrixXd & nds, const MatrixXi & els, const MatrixXd & loc, 
+														const VectorXd & val = VectorXd()); // NUOVO
+														*/
 			
 			/*! Synthetic destructor. */
 			virtual ~bconnect() = default;

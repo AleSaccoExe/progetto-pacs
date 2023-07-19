@@ -114,7 +114,7 @@ namespace geometry
 							
 				\sa bcost, DataGeo */
 			simplification(const string & file, const Real & wgeo,
-				const Real & wdis, const Real & wequ);
+				const Real & wdis, const Real & wequ, const Real & wdeg);
 			
 			/*!	Constructor, provided only for grids with dassociated data.
 				\param file	path to the file storing the mesh
@@ -125,7 +125,7 @@ namespace geometry
 								
 				\sa bcost, DataGeo */
 			simplification(const string & file, const vector<Real> & val, 
-				const Real & wgeo = 1./3, const Real & wdis = 1./3, const Real & wequ = 1./3);
+				const Real & wgeo = 1./3, const Real & wdis = 1./3, const Real & wequ = 1./3, const Real & deg = 0.);
 									
 			/*!	Constructor specifically designed for the R interface. 
 				In case of grids with distributed data, the data locations are supposed 
@@ -154,7 +154,7 @@ namespace geometry
 												
 				\sa bcost, DataGeo */
 			simplification(const MatrixXd & nds, const MatrixXi & els,
-				const Real & wgeo, const Real & wdis, const Real & wequ);
+				const Real & wgeo, const Real & wdis, const Real & wequ, const Real & wdeg);
 						
 			/*!	Constructor specifically designed for the R interface and
 				provided only for grids with associated data.
@@ -173,7 +173,7 @@ namespace geometry
 								
 				\sa bcost, DataGeo */
 			simplification(const MatrixXd & nds, const MatrixXi & els, const MatrixXd & loc,
-				const Real & wgeo = 1./3, const Real & wdis = 1./3, const Real & wequ = 1./3);
+				const Real & wgeo = 1./3, const Real & wdis = 1./3, const Real & wequ = 1./3, const Real & wdeg = 0.);
 				
 			/*!	Constructor specifically designed for the R interface and
 				provided only for grids with associated data.
@@ -193,7 +193,7 @@ namespace geometry
 				\sa bcost, DataGeo */
 			simplification(const MatrixXd & nds, const MatrixXi & els, 
 				const MatrixXd & loc, const VectorXd & val, 
-				const Real & wgeo = 1./3, const Real & wdis = 1./3, const Real & wequ = 1./3);			
+				const Real & wgeo = 1./3, const Real & wdis = 1./3, const Real & wequ = 1./3, const Real & wdeg = 0.);			
 						
 			//
 			// Initialization and refreshing methods

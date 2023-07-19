@@ -28,11 +28,12 @@ namespace geometry
 	
 	template<MeshType MT, typename CostClass>
 	simplification<Triangle, MT, CostClass>::simplification
-		(const string & file, const Real & wgeo, const Real & wdis, const Real & wequ) :
-		gridOperation(file), costObj(&gridOperation, wgeo, wdis, wequ), 
+		(const string & file, const Real & wgeo, const Real & wdis, const Real & wequ, const Real & wdeg) :
+		gridOperation(file), costObj(&gridOperation, wgeo, wdis, wequ, wdeg), 
 		structData(gridOperation), intrs(gridOperation.getPointerToMesh()), 
 		dontTouch(true), dontTouchId(0)
 	{
+
 		initialize();
 	}
 	
@@ -40,8 +41,8 @@ namespace geometry
 	template<MeshType MT, typename CostClass>
 	simplification<Triangle, MT, CostClass>::simplification
 		(const string & file, const vector<Real> & val, 
-		const Real & wgeo, const Real & wdis, const Real & wequ) :
-		gridOperation(file, val), costObj(&gridOperation, wgeo, wdis, wequ), 
+		const Real & wgeo, const Real & wdis, const Real & wequ, const Real & wdeg) :
+		gridOperation(file, val), costObj(&gridOperation, wgeo, wdis, wequ, wdeg), 
 		structData(gridOperation), intrs(gridOperation.getPointerToMesh()), 
 		dontTouch(true), dontTouchId(0)
 	{
@@ -63,8 +64,8 @@ namespace geometry
 	template<MeshType MT, typename CostClass>
 	simplification<Triangle, MT, CostClass>::simplification
 		(const MatrixXd & nds, const MatrixXi & els,
-		const Real & wgeo, const Real & wdis, const Real & wequ) :
-		gridOperation(nds, els), costObj(&gridOperation, wgeo, wdis, wequ), 
+		const Real & wgeo, const Real & wdis, const Real & wequ, const Real & wdeg) :
+		gridOperation(nds, els), costObj(&gridOperation, wgeo, wdis, wequ, wdeg), 
 		structData(gridOperation), intrs(gridOperation.getPointerToMesh()), 
 		dontTouch(true), dontTouchId(0)
 	{
@@ -75,8 +76,8 @@ namespace geometry
 	template<MeshType MT, typename CostClass>
 	simplification<Triangle, MT, CostClass>::simplification
 		(const MatrixXd & nds, const MatrixXi & els, const MatrixXd & loc,
-		const Real & wgeo, const Real & wdis, const Real & wequ) :
-		gridOperation(nds, els, loc), costObj(&gridOperation, wgeo, wdis, wequ), 
+		const Real & wgeo, const Real & wdis, const Real & wequ, const Real & wdeg) :
+		gridOperation(nds, els, loc), costObj(&gridOperation, wgeo, wdis, wequ, wdeg), 
 		structData(gridOperation), intrs(gridOperation.getPointerToMesh()), 
 		dontTouch(true), dontTouchId(0)
 	{
@@ -87,8 +88,8 @@ namespace geometry
 	template<MeshType MT, typename CostClass>
 	simplification<Triangle, MT, CostClass>::simplification
 		(const MatrixXd & nds, const MatrixXi & els, const MatrixXd & loc, const VectorXd & val,
-		const Real & wgeo, const Real & wdis, const Real & wequ) :
-		gridOperation(nds, els, loc, val), costObj(&gridOperation, wgeo, wdis, wequ), 
+		const Real & wgeo, const Real & wdis, const Real & wequ, const Real & wdeg) :
+		gridOperation(nds, els, loc, val), costObj(&gridOperation, wgeo, wdis, wequ, wdeg), 
 		structData(gridOperation), intrs(gridOperation.getPointerToMesh()), 
 		dontTouch(true), dontTouchId(0)
 	{
@@ -287,14 +288,14 @@ namespace geometry
 		// QUI COMINCIANO LE MIE AGGIUNTE
 		Real max_cos=0.; // da usare per modificare il costo del lato
 		#ifdef MIE_AGGIUNTE
-		if(true && pointsList.size()>1) // Se si ha una superficie parametrizzata si tengono solo i due estremi
+		if(false && pointsList.size()>1) // Se si ha una superficie parametrizzata si tengono solo i due estremi
 		{
-			auto P = gridOperation.getCPointerToMesh()->getNode(id1);
+			auto P = gridOperation.getCPointerToMesh()->getNode(id1); 
 			auto Q = gridOperation.getCPointerToMesh()->getNode(id2);
 			vector<point> new_points;
 			for(const auto & point : pointsList)
 				if(point == P || point == Q)
-					new_points.emplace_back(point);
+					new_points.emplace_back(point);  
 			std::function<Real(Real, Real, Real)> F = [](Real x, Real y, Real z)->Real{ return x*x+y*y+z*z-1.;};
 			auto M = utility::stayOnSurface(P, Q, F, 15);
 			new_points.push_back(M);
@@ -303,7 +304,7 @@ namespace geometry
 		if constexpr(std::is_same<CostClass, DataGeo>::value) // se CostClass è DataGeo, si trova il coseno massimo
 		{
 			max_cos = gridOperation.computeMaxCos(id1, id2);
-		}
+		} 
 		#endif // MIE_AGGIUNTE
 
 
@@ -390,17 +391,26 @@ namespace geometry
 			//
 			
 			bool valid(true);
+
+
+
 						
 			for (UInt j = 0; j < toKeep.size() && valid; ++j)
 			{
 				// No degenerate triangles
 				valid = (gridOperation.getTriArea(toKeep[j]) > TOLL);
 				
-				// No triangle inversions
+				// No triangle inversions 
 				valid = valid && (oldNormals[j] * gridOperation.getNormal(toKeep[j]) > TOLL);
 				
 				// No empty triangles
-				valid = valid && !(gridOperation.isEmpty(toKeep[j]));
+				// valid = valid && !(gridOperation.isEmpty(toKeep[j]));
+
+				#ifdef MIE_AGGIUNTE
+				Real cos = gridOperation.computeMaxCos(toKeep[j]);
+				valid = valid && ( (1-cos)*(1-cos) >0.);
+				valid = valid && (gridOperation.getDiam(toKeep[j])<1./3.);
+				#endif // MIE_AGGIUNTE
 			}
 			
 			//
@@ -559,7 +569,7 @@ namespace geometry
 		// QUI COMINCIANO LE MIE AGGIUNTE
 		Real max_cos=0.; // da usare per modificare il costo del lato
 		#ifdef MIE_AGGIUNTE
-		if(true && pointsList.size()>1) // Se si ha una superficie parametrizzata si tengono solo i due estremi
+		if(false && pointsList.size()>1) // Se si ha una superficie parametrizzata si tengono solo i due estremi
 		{
 			auto P = gridOperation.getCPointerToMesh()->getNode(id1);
 			auto Q = gridOperation.getCPointerToMesh()->getNode(id2);
@@ -675,7 +685,12 @@ namespace geometry
 				valid = valid && (oldNormals[j] * gridOperation.getNormal(toKeep[j]) > TOLL);
 				
 				// No empty triangles
-				valid = valid && !(gridOperation.isEmpty(toKeep[j]));
+				// valid = valid && !(gridOperation.isEmpty(toKeep[j]));
+				#ifdef MIE_AGGIUNTE
+				Real cos = gridOperation.computeMaxCos(toKeep[j]);
+				valid = valid && ( (1-cos)*(1-cos) >0.);
+				valid = valid && (gridOperation.getDiam(toKeep[j])<1./3.);
+				#endif // MIE_AGGIUNTE
 			}
 			
 			//
@@ -827,7 +842,7 @@ namespace geometry
 					
 		// Update element-node, node-node and node-element connections
 		gridOperation.getPointerToConnectivity()
-			->applyEdgeCollapse(id2, id1, toRemove, toKeep);
+			->applyEdgeCollapse(id2, id1, toRemove, toKeep); 
 			
 		// Project involved data points and update data-element
 		// and element-data connections
@@ -1135,7 +1150,6 @@ namespace geometry
 	void simplification<Triangle, MT, CostClass>::simplify(const UInt & numNodesMax,
 		const bool & enableDontTouch, const string & file)
 	{
-		std::cout<<"dentro a simplify\n";
 		// Check if the current number of nodes is below the threshold
 		auto numNodesStart(gridOperation.getCPointerToMesh()->getNumNodes());
 		if (numNodesMax >= numNodesStart)
