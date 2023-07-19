@@ -28,10 +28,10 @@ namespace geometry
 	
 	template<MeshType MT, typename CostClass>
 	simplification<Triangle, MT, CostClass>::simplification
-		(const string & file, const Real & wgeo, const Real & wdis, const Real & wequ, const Real & wdeg) :
+		(const string & file, const Real & wgeo, const Real & wdis, const Real & wequ, const Real & wdeg, bool aet) :
 		gridOperation(file), costObj(&gridOperation, wgeo, wdis, wequ, wdeg), 
 		structData(gridOperation), intrs(gridOperation.getPointerToMesh()), 
-		dontTouch(true), dontTouchId(0)
+		dontTouch(true), dontTouchId(0), allowEmptyTriangles(aet)
 	{
 
 		initialize();
@@ -41,10 +41,10 @@ namespace geometry
 	template<MeshType MT, typename CostClass>
 	simplification<Triangle, MT, CostClass>::simplification
 		(const string & file, const vector<Real> & val, 
-		const Real & wgeo, const Real & wdis, const Real & wequ, const Real & wdeg) :
+		const Real & wgeo, const Real & wdis, const Real & wequ, const Real & wdeg, bool aet) :
 		gridOperation(file, val), costObj(&gridOperation, wgeo, wdis, wequ, wdeg), 
 		structData(gridOperation), intrs(gridOperation.getPointerToMesh()), 
-		dontTouch(true), dontTouchId(0)
+		dontTouch(true), dontTouchId(0), allowEmptyTriangles(aet)
 	{
 		initialize();
 	}
@@ -64,10 +64,10 @@ namespace geometry
 	template<MeshType MT, typename CostClass>
 	simplification<Triangle, MT, CostClass>::simplification
 		(const MatrixXd & nds, const MatrixXi & els,
-		const Real & wgeo, const Real & wdis, const Real & wequ, const Real & wdeg) :
+		const Real & wgeo, const Real & wdis, const Real & wequ, const Real & wdeg, bool aet) :
 		gridOperation(nds, els), costObj(&gridOperation, wgeo, wdis, wequ, wdeg), 
 		structData(gridOperation), intrs(gridOperation.getPointerToMesh()), 
-		dontTouch(true), dontTouchId(0)
+		dontTouch(true), dontTouchId(0), allowEmptyTriangles(aet)
 	{
 		initialize();
 	}
@@ -88,10 +88,10 @@ namespace geometry
 	template<MeshType MT, typename CostClass>
 	simplification<Triangle, MT, CostClass>::simplification
 		(const MatrixXd & nds, const MatrixXi & els, const MatrixXd & loc, const VectorXd & val,
-		const Real & wgeo, const Real & wdis, const Real & wequ, const Real & wdeg) :
+		const Real & wgeo, const Real & wdis, const Real & wequ, const Real & wdeg, bool aet) :
 		gridOperation(nds, els, loc, val), costObj(&gridOperation, wgeo, wdis, wequ, wdeg), 
 		structData(gridOperation), intrs(gridOperation.getPointerToMesh()), 
-		dontTouch(true), dontTouchId(0)
+		dontTouch(true), dontTouchId(0), allowEmptyTriangles(aet)
 	{
 		initialize();
 	}
@@ -404,7 +404,8 @@ namespace geometry
 				valid = valid && (oldNormals[j] * gridOperation.getNormal(toKeep[j]) > TOLL);
 				
 				// No empty triangles
-				// valid = valid && !(gridOperation.isEmpty(toKeep[j]));
+				if(!allowEmptyTriangles)
+					valid = valid && !(gridOperation.isEmpty(toKeep[j]));
 
 				#ifdef MIE_AGGIUNTE
 				Real cos = gridOperation.computeMaxCos(toKeep[j]);
@@ -685,7 +686,8 @@ namespace geometry
 				valid = valid && (oldNormals[j] * gridOperation.getNormal(toKeep[j]) > TOLL);
 				
 				// No empty triangles
-				// valid = valid && !(gridOperation.isEmpty(toKeep[j]));
+				if(!allowEmptyTriangles)
+					valid = valid && !(gridOperation.isEmpty(toKeep[j]));
 				#ifdef MIE_AGGIUNTE
 				Real cos = gridOperation.computeMaxCos(toKeep[j]);
 				valid = valid && ( (1-cos)*(1-cos) >0.);
