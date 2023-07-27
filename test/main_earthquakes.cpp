@@ -165,15 +165,16 @@ int main()
 	/*
 	Vengono presi i dati da tre file esterni. Los stesso per la mesh. 
 	*/
-	Eigen::Matrix<int, 10076, 3> triangles;
-	Eigen::Matrix<double, 5040, 3> vertices;
+	Eigen::Matrix<int, Dynamic, 3> triangles;
+	Eigen::Matrix<double, Dynamic, 3> vertices;
 	std::cout<<"\nReading the mesh...\n";
+	triangles.resize(22808, 3);
+	vertices.resize(11406, 3);
 
-
-	std::ifstream file("prove-mie/sfera.inp");
+	std::ifstream file("prove-mie/big_sfera.inp");
 	std::string line;
 	getline(file, line);
-	for(unsigned i=0; i<5040; ++i)
+	for(unsigned i=0; i<11406; ++i)
 	{
 		getline(file, line);
 		std::istringstream ss(line);
@@ -182,11 +183,12 @@ int main()
 		for(unsigned j=0; j<3; ++j)
 		{
 			ss>>coord;
+			
 			vertices(i, j) = coord;
 		}
 	}
 	
-	for(unsigned i=0; i<10076; ++i)
+	for(unsigned i=0; i<22808; ++i)
 
 	{
 		getline(file, line);
@@ -197,6 +199,7 @@ int main()
 			ss>>useless;
 		for(unsigned j=0; j<3; ++j)
 		{
+			int n_ver;
 			ss>>n_ver;
 			triangles(i, j) = n_ver-1;
 		}
@@ -204,7 +207,7 @@ int main()
 
 	// read_mesh(vertices, triangles);
 	std::cout<<"Reading the data points..\n";
-	Eigen::Matrix<double, Dynamic, 3> data(read_data("prove-mie/terremoti-miei.inp"));
+	Eigen::Matrix<double, Dynamic, 3> data(read_data("prove-mie/dati-big-sfera.inp"));
 	print(data);
 	print(static_cast<Matrix<double, Dynamic, 3>>(vertices));
 	Eigen::MatrixXd concatenated(data.rows() + vertices.rows(), data.cols());
@@ -214,9 +217,9 @@ int main()
 	simplification<Triangle, MeshType::DATA, DataGeo> simplifier(static_cast<Matrix<double, Dynamic, Dynamic>>(vertices), 
 																 static_cast<Matrix<int, Dynamic, Dynamic>>(triangles),
 																 static_cast<Matrix<double, Dynamic,Dynamic>>(data), 
-																 0.25, 0.25, 0.25, 0.25);
+																 0.25, 0.25, 0.25, 0.25, 100.0, true);
 	// simplification<Triangle, MeshType::DATA, DataGeo> simplifier("prove-mie/sfera.inp");
-	simplifier.simplify(350, true, "earthquakes.txt");
+	simplifier.simplify(2000, true, "earthquakes.txt");
 	
 
 	return 0;

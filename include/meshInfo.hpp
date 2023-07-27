@@ -161,10 +161,12 @@ namespace geometry
 				\return		TRUE if no data points are associated to the element,
 							FALSE otherwise */
 			bool isEmpty(const UInt & Id) const;
-
+			// NUOVI:
 			Real computeMaxCos(const UInt & id1, const UInt & id2) const;
 
 			Real computeMaxCos(const UInt & id_elem) const;
+
+			void print_qoi(const std::string & file_name) const;
 			
 		protected:
 			//

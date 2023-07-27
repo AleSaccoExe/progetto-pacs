@@ -29,6 +29,7 @@ int main(int argc, char * argv[])
 		<< "-wg, --weight-geom [wg]    " << "set weight for geometric cost function (default: 1/3)" << endl
 		<< "-wd, --weight-disp [wd]    " << "set weight for displacement cost function (default: 1/3)" << endl
 		<< "-we, --weight-equi [we]    " << "set weight for equidistribution cost function (default: 1/3)" << endl
+		<< "-wdeg --weights-deg [wdeg] " << "set weight for degree of the elements (default: 0)" << endl
 		<< "--disable-fixed-element    " << "disable fixed element" << endl;
 		return 0;
 	}
@@ -95,8 +96,8 @@ int main(int argc, char * argv[])
 	high_resolution_clock::time_point start = high_resolution_clock::now();
 	#endif
 	
-	 simplification<Triangle, MeshType::DATA, DataGeo> simplifier(iFile, 0.25, 0.25, 0.25, 0.25);
-	// simplification<Triangle, MeshType::DATA, DataGeo> simplifier(iFile, 1./3., 1./3., 1./3., 0.);
+	simplification<Triangle, MeshType::DATA, DataGeo> simplifier(iFile, 0.25, 0.25, 0.25, 0.25, 100.0, false);
+	// simplification<Triangle, MeshType::DATA, DataGeo> simplifier(iFile, 1./3., 1./3., 1./3., 0., 100.0, false);
 	simplifier.simplify(n, fixedElem, oFile);
 		
 	#ifdef NDEBUG
@@ -104,4 +105,5 @@ int main(int argc, char * argv[])
 	auto dif = duration_cast<milliseconds>(stop-start).count();
 	cout << "Total elapsed time: " << dif << " ms" << endl;
 	#endif
+	simplifier.getCPointerToMeshOperator()->print_qoi("qoi.txt");
 }

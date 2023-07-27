@@ -113,9 +113,9 @@ namespace geometry
 				auto l1 = getCPointerToMesh()->getNode(elem[1]) - getCPointerToMesh()->getNode(elem[0]);
 				auto l2 = getCPointerToMesh()->getNode(elem[2]) - getCPointerToMesh()->getNode(elem[1]);
 				auto l3 = getCPointerToMesh()->getNode(elem[0]) - getCPointerToMesh()->getNode(elem[2]);
-				Real cos0 = -(l1*l3)/(l1.norm2()*l3.norm2());
-				Real cos1 = -(l1*l2)/(l1.norm2()*l2.norm2());
-				Real cos2 = -(l2*l3)/(l2.norm2()*l3.norm2());
+				Real cos0 = std::abs( -(l1*l3)/(l1.norm2()*l3.norm2()) );
+				Real cos1 = std::abs( -(l1*l2)/(l1.norm2()*l2.norm2()) );
+				Real cos2 = std::abs(-(l2*l3)/(l2.norm2()*l3.norm2()) );
 				if(cos0>max_cos) 
 					max_cos=cos0;
 				if(cos1>max_cos)
@@ -134,9 +134,9 @@ namespace geometry
 		auto l1 = getCPointerToMesh()->getNode(elem[1]) - getCPointerToMesh()->getNode(elem[0]);
 		auto l2 = getCPointerToMesh()->getNode(elem[2]) - getCPointerToMesh()->getNode(elem[1]);
 		auto l3 = getCPointerToMesh()->getNode(elem[0]) - getCPointerToMesh()->getNode(elem[2]);
-		Real cos0 = -(l1*l3)/(l1.norm2()*l3.norm2());
-		Real cos1 = -(l1*l2)/(l1.norm2()*l2.norm2());
-		Real cos2 = -(l2*l3)/(l2.norm2()*l3.norm2());
+		Real cos0 = std::abs( -(l1*l3)/(l1.norm2()*l3.norm2()) );
+		Real cos1 = std::abs( -(l1*l2)/(l1.norm2()*l2.norm2()) );
+		Real cos2 = std::abs( -(l2*l3)/(l2.norm2()*l3.norm2()) );
 		if(cos0>max_cos) 
 			max_cos=cos0;
 		if(cos1>max_cos)

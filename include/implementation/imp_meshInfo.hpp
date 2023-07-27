@@ -235,6 +235,16 @@ namespace geometry
 	{
 		return (this->connectivity.elem2data[Id].size() == 0);
 	}
+
+	template<typename SHAPE>
+	void meshInfo<SHAPE, MeshType::DATA>::print_qoi(const std::string & file_name) const
+	{
+		std::ofstream file(file_name);
+		UInt n_elems = this->getCPointerToMesh()->getNumElems();
+		for(unsigned i = 0; i<n_elems; ++i)
+			file<<i+1<<" "<<getQuantityOfInformation(i)<<"\n";
+
+	}
 }
 
 #endif

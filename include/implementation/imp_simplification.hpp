@@ -28,10 +28,11 @@ namespace geometry
 	
 	template<MeshType MT, typename CostClass>
 	simplification<Triangle, MT, CostClass>::simplification
-		(const string & file, const Real & wgeo, const Real & wdis, const Real & wequ, const Real & wdeg, bool aet) :
+		(const string & file, const Real & wgeo, const Real & wdis, const Real & wequ, const Real & wdeg, 
+			const Real & maxD, bool aet) :
 		gridOperation(file), costObj(&gridOperation, wgeo, wdis, wequ, wdeg), 
 		structData(gridOperation), intrs(gridOperation.getPointerToMesh()), 
-		dontTouch(true), dontTouchId(0), allowEmptyTriangles(aet)
+		dontTouch(true), dontTouchId(0), allowEmptyTriangles(aet), maxDiam(maxD)
 	{
 
 		initialize();
@@ -41,10 +42,11 @@ namespace geometry
 	template<MeshType MT, typename CostClass>
 	simplification<Triangle, MT, CostClass>::simplification
 		(const string & file, const vector<Real> & val, 
-		const Real & wgeo, const Real & wdis, const Real & wequ, const Real & wdeg, bool aet) :
+		const Real & wgeo, const Real & wdis, const Real & wequ, const Real & wdeg,
+		const Real & maxD, bool aet) :
 		gridOperation(file, val), costObj(&gridOperation, wgeo, wdis, wequ, wdeg), 
 		structData(gridOperation), intrs(gridOperation.getPointerToMesh()), 
-		dontTouch(true), dontTouchId(0), allowEmptyTriangles(aet)
+		dontTouch(true), dontTouchId(0), allowEmptyTriangles(aet), maxDiam(maxD)
 	{
 		initialize();
 	}
@@ -64,10 +66,11 @@ namespace geometry
 	template<MeshType MT, typename CostClass>
 	simplification<Triangle, MT, CostClass>::simplification
 		(const MatrixXd & nds, const MatrixXi & els,
-		const Real & wgeo, const Real & wdis, const Real & wequ, const Real & wdeg, bool aet) :
+		const Real & wgeo, const Real & wdis, const Real & wequ, const Real & wdeg, 
+		const Real & maxD, bool aet) :
 		gridOperation(nds, els), costObj(&gridOperation, wgeo, wdis, wequ, wdeg), 
 		structData(gridOperation), intrs(gridOperation.getPointerToMesh()), 
-		dontTouch(true), dontTouchId(0), allowEmptyTriangles(aet)
+		dontTouch(true), dontTouchId(0), allowEmptyTriangles(aet), maxDiam(maxD)
 	{
 		initialize();
 	}
@@ -76,10 +79,11 @@ namespace geometry
 	template<MeshType MT, typename CostClass>
 	simplification<Triangle, MT, CostClass>::simplification
 		(const MatrixXd & nds, const MatrixXi & els, const MatrixXd & loc,
-		const Real & wgeo, const Real & wdis, const Real & wequ, const Real & wdeg) :
+		const Real & wgeo, const Real & wdis, const Real & wequ, const Real & wdeg,
+		const Real & maxD, bool aet) :
 		gridOperation(nds, els, loc), costObj(&gridOperation, wgeo, wdis, wequ, wdeg), 
 		structData(gridOperation), intrs(gridOperation.getPointerToMesh()), 
-		dontTouch(true), dontTouchId(0)
+		dontTouch(true), dontTouchId(0), allowEmptyTriangles(aet), maxDiam(maxD)
 	{
 		initialize();
 	}
@@ -88,10 +92,11 @@ namespace geometry
 	template<MeshType MT, typename CostClass>
 	simplification<Triangle, MT, CostClass>::simplification
 		(const MatrixXd & nds, const MatrixXi & els, const MatrixXd & loc, const VectorXd & val,
-		const Real & wgeo, const Real & wdis, const Real & wequ, const Real & wdeg, bool aet) :
+		const Real & wgeo, const Real & wdis, const Real & wequ, const Real & wdeg, 
+		const Real & maxD, bool aet) :
 		gridOperation(nds, els, loc, val), costObj(&gridOperation, wgeo, wdis, wequ, wdeg), 
 		structData(gridOperation), intrs(gridOperation.getPointerToMesh()), 
-		dontTouch(true), dontTouchId(0), allowEmptyTriangles(aet)
+		dontTouch(true), dontTouchId(0), allowEmptyTriangles(aet), maxDiam(maxD)
 	{
 		initialize();
 	}
@@ -1247,6 +1252,8 @@ namespace geometry
 			gridOperation.getPointerToMesh()->print(file);
 			//gridOperation.printMesh(file);
 	}
+
+	
 }
 
 #endif
