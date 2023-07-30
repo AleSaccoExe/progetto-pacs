@@ -113,7 +113,7 @@ namespace geometry
 			cInfoList.emplace(old2new[cInfo.getId1()], old2new[cInfo.getId2()],
 				cInfo.getCost(), cInfo.getCollapsingPoint()); 
 	}
-	
+
 	
 	template<typename SHAPE, MeshType MT, typename D>
 	INLINE void bcost<SHAPE,MT,D>::clear()

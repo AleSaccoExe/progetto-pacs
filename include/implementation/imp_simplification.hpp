@@ -28,9 +28,9 @@ namespace geometry
 	
 	template<MeshType MT, typename CostClass>
 	simplification<Triangle, MT, CostClass>::simplification
-		(const string & file, const Real & wgeo, const Real & wdis, const Real & wequ, const Real & wdeg, 
+		(const string & file, const Real & wgeo, const Real & wdis, const Real & wequ, const Real & wdeg, const Real & wdiam,
 			const Real & maxD, bool aet) :
-		gridOperation(file), costObj(&gridOperation, wgeo, wdis, wequ, wdeg), 
+		gridOperation(file), costObj(&gridOperation, wgeo, wdis, wequ, wdeg, wdiam), 
 		structData(gridOperation), intrs(gridOperation.getPointerToMesh()), 
 		dontTouch(true), dontTouchId(0), allowEmptyTriangles(aet), maxDiam(maxD)
 	{
@@ -42,9 +42,9 @@ namespace geometry
 	template<MeshType MT, typename CostClass>
 	simplification<Triangle, MT, CostClass>::simplification
 		(const string & file, const vector<Real> & val, 
-		const Real & wgeo, const Real & wdis, const Real & wequ, const Real & wdeg,
+		const Real & wgeo, const Real & wdis, const Real & wequ, const Real & wdeg, const Real & wdiam,
 		const Real & maxD, bool aet) :
-		gridOperation(file, val), costObj(&gridOperation, wgeo, wdis, wequ, wdeg), 
+		gridOperation(file, val), costObj(&gridOperation, wgeo, wdis, wequ, wdeg, wdiam), 
 		structData(gridOperation), intrs(gridOperation.getPointerToMesh()), 
 		dontTouch(true), dontTouchId(0), allowEmptyTriangles(aet), maxDiam(maxD)
 	{
@@ -66,9 +66,9 @@ namespace geometry
 	template<MeshType MT, typename CostClass>
 	simplification<Triangle, MT, CostClass>::simplification
 		(const MatrixXd & nds, const MatrixXi & els,
-		const Real & wgeo, const Real & wdis, const Real & wequ, const Real & wdeg, 
+		const Real & wgeo, const Real & wdis, const Real & wequ, const Real & wdeg, const Real & wdiam,
 		const Real & maxD, bool aet) :
-		gridOperation(nds, els), costObj(&gridOperation, wgeo, wdis, wequ, wdeg), 
+		gridOperation(nds, els), costObj(&gridOperation, wgeo, wdis, wequ, wdeg, wdiam), 
 		structData(gridOperation), intrs(gridOperation.getPointerToMesh()), 
 		dontTouch(true), dontTouchId(0), allowEmptyTriangles(aet), maxDiam(maxD)
 	{
@@ -79,9 +79,9 @@ namespace geometry
 	template<MeshType MT, typename CostClass>
 	simplification<Triangle, MT, CostClass>::simplification
 		(const MatrixXd & nds, const MatrixXi & els, const MatrixXd & loc,
-		const Real & wgeo, const Real & wdis, const Real & wequ, const Real & wdeg,
+		const Real & wgeo, const Real & wdis, const Real & wequ, const Real & wdeg, const Real & wdiam,
 		const Real & maxD, bool aet) :
-		gridOperation(nds, els, loc), costObj(&gridOperation, wgeo, wdis, wequ, wdeg), 
+		gridOperation(nds, els, loc), costObj(&gridOperation, wgeo, wdis, wequ, wdeg, wdiam), 
 		structData(gridOperation), intrs(gridOperation.getPointerToMesh()), 
 		dontTouch(true), dontTouchId(0), allowEmptyTriangles(aet), maxDiam(maxD)
 	{
@@ -92,9 +92,9 @@ namespace geometry
 	template<MeshType MT, typename CostClass>
 	simplification<Triangle, MT, CostClass>::simplification
 		(const MatrixXd & nds, const MatrixXi & els, const MatrixXd & loc, const VectorXd & val,
-		const Real & wgeo, const Real & wdis, const Real & wequ, const Real & wdeg, 
+		const Real & wgeo, const Real & wdis, const Real & wequ, const Real & wdeg, const Real & wdiam,
 		const Real & maxD, bool aet) :
-		gridOperation(nds, els, loc, val), costObj(&gridOperation, wgeo, wdis, wequ, wdeg), 
+		gridOperation(nds, els, loc, val), costObj(&gridOperation, wgeo, wdis, wequ, wdeg, wdiam), 
 		structData(gridOperation), intrs(gridOperation.getPointerToMesh()), 
 		dontTouch(true), dontTouchId(0), allowEmptyTriangles(aet), maxDiam(maxD)
 	{
@@ -415,7 +415,7 @@ namespace geometry
 				#ifdef MIE_AGGIUNTE
 				Real cos = gridOperation.computeMaxCos(toKeep[j]);
 				valid = valid && ( (1-cos)*(1-cos) >0.);
-				valid = valid && (gridOperation.getDiam(toKeep[j])<1./3.);
+				valid = valid && (gridOperation.getDiam(toKeep[j])<maxDiam);
 				#endif // MIE_AGGIUNTE
 			}
 			
@@ -696,7 +696,7 @@ namespace geometry
 				#ifdef MIE_AGGIUNTE
 				Real cos = gridOperation.computeMaxCos(toKeep[j]);
 				valid = valid && ( (1-cos)*(1-cos) >0.);
-				valid = valid && (gridOperation.getDiam(toKeep[j])<1./3.);
+				valid = valid && (gridOperation.getDiam(toKeep[j])<maxDiam);
 				#endif // MIE_AGGIUNTE
 			}
 			
@@ -706,8 +706,16 @@ namespace geometry
 			
 			if (valid)
 			{
-				auto cost = costObj.getCost(id1, id2, pointsList[i], toKeep, toMove);
-				collapsingSet_l.emplace(id1, id2, cost, pointsList[i]);
+				if constexpr(std::is_same<CostClass, DataGeo>::value)
+				{
+					auto cost = costObj.getCost(id1, id2, pointsList[i], toKeep, toMove, max_cos);
+					collapsingSet_l.emplace(id1, id2, cost, pointsList[i]);
+				}
+				else
+				{
+					auto cost = costObj.getCost(id1, id2, pointsList[i], toKeep, toMove);
+					collapsingSet_l.emplace(id1, id2, cost, pointsList[i]);
+				}
 			}
 			
 			//

@@ -113,26 +113,57 @@ int main(int argc, char* argv[])
     unsigned n=gp.follow(1000, 1, "-n");
     unsigned N=0;
     if(gp.search(1, "-i"))
-    	N = gp.follow(0, 1, "-i");
+    	N = gp.follow(1, 1, "-i");
 
     std::string file_ver = "prove-mie/sphere.vertices.eval.txt";
     std::string file_tri = "prove-mie/sphere.triangles.eval.txt";
     std::string file_data = "prove-mie/dati-perotto.txt";
     
     
-    if(N == 0)
-    {
-    	simplification<Triangle, MeshType::DATA, DataGeo> simp(read_ver(file_ver), read_tri(file_tri), read_data(file_data),
-    										   1./3., 1./3., 1./3., 0., 100.0, false);
-    	simp.simplify(n, true, "earthquakes.txt");
-    	 simp.getCPointerToMeshOperator()->print_qoi("qoi.txt");
-    }
     if(N == 1)
     {
     	simplification<Triangle, MeshType::DATA, DataGeo> simp(read_ver(file_ver), read_tri(file_tri), read_data(file_data),
-    										   0.25, 0.25, 0.25, 0.25, 100.0, false);
+    										   1./3., 1./3., 1./3., 0., 0., 100.0, false);
     	simp.simplify(n, true, "earthquakes.txt");
-    	 simp.getCPointerToMeshOperator()->print_qoi("qoi.txt");
+    	simp.getCPointerToMeshOperator()->print_qoi("qoi.txt");
+    	simp.print_diam("diam.txt");
+    	simp.print_data_dist("dist.txt");
+    }
+    if(N == 2)
+    {
+    	simplification<Triangle, MeshType::DATA, DataGeo> simp(read_ver(file_ver), read_tri(file_tri), read_data(file_data),
+    										   0.25, 0.25, 0.25, 0.25, 0., 100.0, false);
+    	simp.simplify(n, true, "earthquakes.txt");
+    	simp.getCPointerToMeshOperator()->print_qoi("qoi.txt");
+    	simp.print_diam("diam.txt");
+    	simp.print_data_dist("dist.txt");
+    }
+    if(N == 4)
+    {
+    	simplification<Triangle, MeshType::DATA, DataGeo> simp(read_ver(file_ver), read_tri(file_tri), read_data(file_data),
+    										   0.2, 0.2, 0.2, 0.2, 0.2, 100.0, false);
+    	simp.simplify(n, true, "earthquakes.txt");
+    	simp.getCPointerToMeshOperator()->print_qoi("qoi.txt");
+    	simp.print_diam("diam.txt");
+    	simp.print_data_dist("dist.txt");
+    }
+    if(N == 3)
+    {
+    	simplification<Triangle, MeshType::DATA, DataGeo> simp(read_ver(file_ver), read_tri(file_tri), read_data(file_data),
+    										   0.25, 0.25, 0.25, 0., 0.25, 100.0, false);
+    	simp.simplify(n, true, "earthquakes.txt");
+    	simp.getCPointerToMeshOperator()->print_qoi("qoi.txt");
+    	simp.print_diam("diam.txt");
+    	simp.print_data_dist("dist.txt");
+    }
+    if(N == 5)
+    {
+    	simplification<Triangle, MeshType::DATA, DataGeo> simp(read_ver(file_ver), read_tri(file_tri), read_data(file_data),
+    										   0.25, 0.25, 0.25, 0., 0.25, 100.0, false);
+    	simp.simplify(n, true, "earthquakes.txt");
+    	simp.getCPointerToMeshOperator()->print_qoi("qoi.txt");
+    	simp.print_diam("diam.txt");
+    	simp.print_data_dist("dist.txt");
     }
    
     return 0;

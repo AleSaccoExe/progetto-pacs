@@ -1,3 +1,3 @@
 set hidden3d
-splot "sfera2.txt" with lines
+splot "terremoti4.txt" with lines
 pause -1

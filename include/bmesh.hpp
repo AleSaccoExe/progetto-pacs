@@ -41,6 +41,8 @@ namespace geometry
 			
 			/*! Vector of elements. */
 			vector<geoElement<SHAPE>> 	elems;
+
+			set<UInt> activeElems; // NUOVO
 					
 		public:
 			//
@@ -257,6 +259,8 @@ namespace geometry
 								
 				\param filename	name of the output file */
 			void print(const string & filename); 
+
+			const std::set<UInt> & getActiveElems() const;  // NUOVO
 			
 		protected:
 			//
@@ -292,6 +296,7 @@ namespace geometry
 			/*! Print in .inp or .txt format. 
 				\param filename	name of the output file */
 			virtual void print_inp(const string & filename) const;
+
 	};
 }
 

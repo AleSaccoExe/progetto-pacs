@@ -46,6 +46,7 @@ namespace geometry
 				an unordered set of collapseInfo objects. */
 			unordered_set<collapseInfo> cInfoList;
 			
+			
 		public:
 			//
 			// Constructors

@@ -31,6 +31,10 @@ namespace geometry
 		
 		nodes.reserve(numNodes);
 		elems.reserve(numElems);
+		std::set<int> mySet;
+    	for (int i = 0; i < numElems; ++i)
+        	activeElems.insert(i);
+    
 	}
 	
 	
@@ -39,6 +43,8 @@ namespace geometry
 		numNodes(nds.size()), numElems(els.size()),
 		nodes(nds.cbegin(), nds.cend()), elems(els.cbegin(), els.cend())
 	{
+		for (int i = 0; i < numElems; ++i)
+        	activeElems.insert(i);
 	}
 	
 	
@@ -57,6 +63,8 @@ namespace geometry
 			read_obj(filename);
 		else
 			throw runtime_error("Format " + format + " not known.");
+		for (int i = 0; i <= numElems; ++i)
+        	activeElems.insert(i);
 	}
 	
 	
@@ -77,7 +85,7 @@ namespace geometry
 		// Initialize elements list
 		elems.reserve(numElems);
 		array<UInt,NV> ids;
-		std::cout<<"numero di elementi: "<<numElems<<"\n";
+		
 		for (UInt i = 0; i < numElems; ++i)
 		{
 			for (UInt j = 0; j < NV; ++j){
@@ -85,6 +93,8 @@ namespace geometry
 			}
 			elems.emplace_back(ids, i);
 		}
+		for (int i = 0; i < numElems; ++i)
+        	activeElems.insert(i);
 	}
 		
 	
@@ -110,6 +120,9 @@ namespace geometry
 		// Update number of nodes and elements
 		numNodes = nodes.size();
 		numElems = elems.size();
+
+		activeElems = bm.activeElems;
+
 		
 		return *this;
 	}
@@ -328,6 +341,7 @@ namespace geometry
 			elems[Id].setActive();
 			++numElems;
 		}
+		activeElems.insert(Id);
 	}
 	
 	
@@ -339,6 +353,7 @@ namespace geometry
 			elems[Id].setInactive();
 			--numElems;
 		}
+		activeElems.erase(Id);
 	}
 	
 	
@@ -357,8 +372,10 @@ namespace geometry
 	template<typename SHAPE>
 	INLINE void bmesh<SHAPE>::insertElem(const array<UInt,NV> & vert, const UInt & geoId)
 	{
+		activeElems.insert(elems.size());
 		elems.emplace_back(vert, elems.size(), geoId);
 		++numElems;
+
 	}
 		
 	
@@ -399,7 +416,7 @@ namespace geometry
 		if (it->isActive())
 			--numElems;
 		elems.erase(it);
-		
+		activeElems.erase(Id);
 		// Update id's
 		setUpElemsIds();
 	}
@@ -415,6 +432,7 @@ namespace geometry
 		// Clear elements
 		numElems = 0;
 		elems.clear();
+		activeElems.clear();
 	}
 	
 	
@@ -501,6 +519,9 @@ namespace geometry
 		elems.clear();
 		elems.reserve(numElems);
 		copy(tmp_elems.cbegin(), tmp_elems.cend(), back_inserter(elems));
+		activeElems.clear();
+		for (int i = 0; i < numElems; ++i)
+        	activeElems.insert(i);
 		
 		return {nodes_old2new, elems_old2new};
 	}
@@ -818,6 +839,11 @@ namespace geometry
 	{
 		for (UInt i = 0; i < elems.size(); ++i)
 			elems[i].setId(i);
+	}
+	template<typename SHAPE>
+	const std::set<UInt> & bmesh<SHAPE>::getActiveElems() const
+	{
+		return activeElems;
 	}
 }
 

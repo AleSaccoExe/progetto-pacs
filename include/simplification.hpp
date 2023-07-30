@@ -12,6 +12,7 @@
 #include "collapsingEdge.hpp"
 #include "structuredData.hpp"
 #include "intersection.hpp"
+#include <type_traits>
 
 namespace geometry
 {
@@ -117,7 +118,7 @@ namespace geometry
 							
 				\sa bcost, DataGeo */
 			simplification(const string & file, const Real & wgeo,
-				const Real & wdis, const Real & wequ, const Real & wdeg, const Real & maxD, bool aet);
+				const Real & wdis, const Real & wequ, const Real & wdeg, const Real & wdiam, const Real & maxD, bool aet);
 			
 			/*!	Constructor, provided only for grids with dassociated data.
 				\param file	path to the file storing the mesh
@@ -129,7 +130,7 @@ namespace geometry
 				\sa bcost, DataGeo */
 			simplification(const string & file, const vector<Real> & val, 
 				const Real & wgeo = 1./3, const Real & wdis = 1./3, const Real & wequ = 1./3, const Real & wdeg = 0., 
-							const Real & maxD = std::numeric_limits<Real>::infinity(), bool aet = false);
+							const Real & wdiam = 0., const Real & maxD = std::numeric_limits<Real>::infinity(), bool aet = false);
 									
 			/*!	Constructor specifically designed for the R interface. 
 				In case of grids with distributed data, the data locations are supposed 
@@ -158,7 +159,8 @@ namespace geometry
 												
 				\sa bcost, DataGeo */
 			simplification(const MatrixXd & nds, const MatrixXi & els,
-				const Real & wgeo, const Real & wdis, const Real & wequ, const Real & wdeg, const Real & maxD, bool aet);
+				const Real & wgeo, const Real & wdis, const Real & wequ, const Real & wdeg, const Real & wdiam,
+				const Real & maxD, bool aet);
 						
 			/*!	Constructor specifically designed for the R interface and
 				provided only for grids with associated data.
@@ -178,7 +180,7 @@ namespace geometry
 				\sa bcost, DataGeo */
 			simplification(const MatrixXd & nds, const MatrixXi & els, const MatrixXd & loc,
 				const Real & wgeo = 1./3, const Real & wdis = 1./3, const Real & wequ = 1./3, const Real & wdeg = 0.,
-				const Real & maxD = std::numeric_limits<Real>::infinity(), bool aet = false);
+				const Real & wdiam = 0., const Real & maxD = std::numeric_limits<Real>::infinity(), bool aet = false);
 				
 			/*!	Constructor specifically designed for the R interface and
 				provided only for grids with associated data.
@@ -200,7 +202,7 @@ namespace geometry
 			simplification(const MatrixXd & nds, const MatrixXi & els, 
 				const MatrixXd & loc, const VectorXd & val, 
 				const Real & wgeo = 1./3, const Real & wdis = 1./3, const Real & wequ = 1./3, const Real & wdeg = 0.,
-							const Real & maxD = std::numeric_limits<Real>::infinity(), bool aet = false);			
+				const Real & wdiam = 0., const Real & maxD = std::numeric_limits<Real>::infinity(), bool aet = false);			
 						
 			//
 			// Initialization and refreshing methods
@@ -361,7 +363,26 @@ namespace geometry
 				\param file				path to output file; if empty, nothing is printed */
 			void simplify(const UInt & numNodesMax, const bool & enableDontTouch,
 				const string & file = "");
-								
+			
+			template<typename T=CostClass>
+			std::enable_if_t<std::is_same_v<T, DataGeo>, void> print_data_dist(const std::string & file_name) const // NUOVO
+			{
+				std::ofstream file(file_name);
+				UInt num_elems = this->gridOperation.getCPointerToMesh()->getNumElems();
+				for(unsigned i=0; i<num_elems; ++i)
+					file<<i<<" "<<(gridOperation.getCPointerToMesh()->getData(i)-costObj.getOriginalDataPointLocation(i)).norm2()<<"\n";
+
+			}
+			template<typename T=CostClass>
+			std::enable_if_t<std::is_same_v<T, DataGeo>, void> print_diam(const std::string & file_name) const // NUOVO
+			{
+				std::ofstream file(file_name);
+				UInt num_elems = this->gridOperation.getCPointerToMesh()->getNumElems();
+				auto elems = costObj.getActiveElems();
+				for(auto elem : elems)
+					file<<elem<<" "<<gridOperation.getDiam(elem)<<"\n";
+
+			}
 		private:
 			/*!	Initialize the class, i.e. build collapsingSet and find the element
 				possibly to preserve throughout the simplification process. 

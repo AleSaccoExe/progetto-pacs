@@ -27,8 +27,8 @@ namespace geometry
 	//
 	
 	DataGeo::DataGeo(bmeshOperation<Triangle, MeshType::DATA> * bmo,
-		const Real & a, const Real & b, const Real & c, const Real & d) :
-		bcost<Triangle, MeshType::DATA, DataGeo>(bmo), weight{{a,b,c,d}}, to_update(false)
+		const Real & a, const Real & b, const Real & c, const Real & d, const Real & e) :
+		bcost<Triangle, MeshType::DATA, DataGeo>(bmo), weight{{a,b,c,d,e}}, to_update(false)
 	{
 		// Create list of Q matrices
 		buildQs();
@@ -38,14 +38,15 @@ namespace geometry
 		
 		// Compute quantity of information for all elements
 		buildQuantityOfInformation();
+		this->computeMeanDiam(); // NUOVO
 		
 		// Get maximum for each cost function
 		getMaximumCosts();
 	}
 	
 	
-	DataGeo::DataGeo(const Real & a, const Real & b, const Real & c, const Real & d) :
-		bcost<Triangle, MeshType::DATA, DataGeo>(), weight{{a,b,c,d}}, to_update(false)
+	DataGeo::DataGeo(const Real & a, const Real & b, const Real & c, const Real & d, const Real & e) :
+		bcost<Triangle, MeshType::DATA, DataGeo>(), weight{{a,b,c,d,e}}, to_update(false)
 	{
 	}
 	
@@ -277,11 +278,11 @@ namespace geometry
 	void DataGeo::getMaximumCosts(const UInt & id1, const UInt & id2) 
 	{
 		// Initialize variables
-		Real geo, disp, equi;
+		Real geo, disp, equi, diam;
 		min_geo = numeric_limits<Real>::max();
 		min_disp = numeric_limits<Real>::max();
 		min_equi = numeric_limits<Real>::max();
-			
+		min_diam = numeric_limits<Real>::max(); //NUOVO
 		//
 		// Get potentially valid collapsing points
 		//
@@ -331,7 +332,7 @@ namespace geometry
 			
 			// Compute all cost functions
 			tie(geo, disp, equi) = getDecomposedCost(id1, id2, Q, toKeep, toMove);
-			
+			diam = this->getCostDiam(toKeep);
 			// Check if they are the best so far
 			if (geo < min_geo)
 				min_geo = geo;
@@ -339,6 +340,8 @@ namespace geometry
 				min_disp = disp;
 			if (equi < min_equi)
 				min_equi = equi;
+			if(diam<min_diam)
+				min_diam=diam;
 							
 			//
 			// Undo projections and restore data-element and
@@ -367,6 +370,8 @@ namespace geometry
 			maxCost[1] = min_disp;
 		if (min_equi > maxCost[2])
 			maxCost[2] = min_equi;
+		if(min_diam > maxCost[3])
+			maxCost[3] = min_diam;
 	}
 	
 	
@@ -405,6 +410,7 @@ namespace geometry
 		
 		// Compute quantity of information for each element
 		buildQuantityOfInformation();
+		this->computeMeanDiam();
 		
 		// Get maximum for each cost function
 		getMaximumCosts();
@@ -544,7 +550,7 @@ namespace geometry
 
 		auto elems = this->oprtr->getCPointerToConnectivity()->getNode2Elem(id1).getConnected();
 		auto P(oprtr->getCPointerToMesh()->getNode(id1)); // posizione del nodo id1
-		oprtr->getPointerToMesh()->setNode(id1, p);
+		this->oprtr->getPointerToMesh()->setNode(id1, p);
 		Real new_max_cos=0.;
 		for(const auto & id_elem:elems)
 			{
@@ -565,10 +571,12 @@ namespace geometry
 				if(cos2>new_max_cos)
 					new_max_cos=cos2; 
 			}
-		oprtr->getPointerToMesh()->setNode(id1, P); // dopo il calcolo di new_max_cos viene ripristinata la posizione di id1
+
+		Real diam = this->getCostDiam(toKeep); 
+		
+		this->oprtr->getPointerToMesh()->setNode(id1, P); // dopo il calcolo di new_max_cos viene ripristinata la posizione di id1
 		Real sin_ratio = (1.-max_cos*max_cos)/(1.-new_max_cos*new_max_cos);
 		Real deg_penalty = 1./tanh(0.5*sin_ratio)-1./(sin_ratio*0.5);   
-
 		//
 		// Compute geometric cost function
 		//
@@ -630,9 +638,13 @@ namespace geometry
 		//
 		// Final cost
 		//
+
+		if(diam < min_diam) // NUOVO
+			min_diam=diam;
+
 		#ifdef MIE_AGGIUNTE
 		return (weight[0] * geo / maxCost[0] + weight[1] * disp / maxCost[1]
-			+ weight[2] * equi / maxCost[2]) + weight[3]*deg_penalty;
+			+ weight[2] * equi / maxCost[2] + weight[4] * diam / maxCost[3]) + weight[3]*deg_penalty;
 		#else
 		return (weight[0] * geo / maxCost[0] + weight[1] * disp / maxCost[1]
 			+ weight[2] * equi / maxCost[2]);
@@ -668,10 +680,11 @@ namespace geometry
 					new_max_cos=cos2; 
 			}
 
+		Real diam = this->getCostDiam(toKeep); // NUOVO
+
 		oprtr->getPointerToMesh()->setNode(id1, P); // dopo il calcolo di new_max_cos viene ripristinata la posizione di id1
 		Real sin_ratio = (1.-max_cos*max_cos)/(1.-new_max_cos*new_max_cos);
-		Real deg_penalty = 1./tanh(sin_ratio)-1./sin_ratio;
-
+		Real deg_penalty = 1./tanh(0.5*sin_ratio)-1./(0.5*sin_ratio);
 		//
 		// Compute geometric cost function
 		//
@@ -717,12 +730,14 @@ namespace geometry
 		
 		// Average over all involved elements
 		equi /= toKeep.size();
+
+		
 		//
 		// Final cost
 		//
 		#ifdef MIE_AGGIUNTE
 		return weight[0] * geo / maxCost[0] + weight[1] * disp / maxCost[1]
-			+ weight[2] * equi / maxCost[2]+weight[3]*deg_penalty;
+			+ weight[2] * equi / maxCost[2] + diam * weight[4] / maxCost[3] + weight[3]*deg_penalty;
 		#else
 		return (weight[0] * geo / maxCost[0] + weight[1] * disp / maxCost[1]
 			+ weight[2] * equi / maxCost[2]);
@@ -767,6 +782,12 @@ namespace geometry
 			maxCost[2] = min_equi;
 			to_update = true;
 		}
+		if (min_diam > 1.3 * maxCost[3]) // NUOVO
+		{
+			maxCost[3] = min_diam;
+			to_update = true;
+		}
+
 		
 		//
 		// Reset minimum values
@@ -775,6 +796,7 @@ namespace geometry
 		min_geo = numeric_limits<Real>::max();
 		min_disp = numeric_limits<Real>::max();
 		min_equi = numeric_limits<Real>::max();
+		min_diam = numeric_limits<Real>::max();
 	}
 	
 	
@@ -785,9 +807,54 @@ namespace geometry
 		// Update list of Q matrices
 		updateQs(newId);
 		
+		computeMeanDiam();
 		// Update list of quantity of information for each element,
 		// number of elements and average quantity of information
+
 		updateQuantityOfInformation(newId, toRemove);
+		
+	}
+
+	void DataGeo::computeMeanDiam() // NUOVO
+	{
+		
+		UInt n_elems = this->oprtr->getCPointerToMesh()->getNumElems();
+		mean_diam=0.;
+		const auto & elems = this->oprtr->getCPointerToMesh()->getActiveElems();
+		for(auto elem : elems)
+			mean_diam+=this->oprtr->getDiam(elem);
+		mean_diam/=n_elems;
+
+	}
+
+
+	Real DataGeo::getCostDiam(const std::vector<UInt> & elems) const // NUOVO
+	{
+		Real cost(0.);
+		for (auto elem : elems)
+		{
+			Real new_diam(this->oprtr->getDiam(elem));
+			cost += (new_diam - mean_diam)*(new_diam - mean_diam);
+		}
+		return cost/elems.size();
+	}
+
+	void DataGeo::updateMeanDiam(const std::vector<UInt> & toRemove)
+	{
+		Real sum_diam = mean_diam * numElems;
+		
+		
+		for (auto elem : toRemove)
+			sum_diam -= this->oprtr->getDiam(elem);
+			
+		
+		// Update number of elements and average quantity of information
+		UInt new_n_elems = this->oprtr->getCPointerToMesh()->getNumElems();
+		mean_diam = sum_diam / new_n_elems;
+	}
+	const std::set<UInt> & DataGeo::getActiveElems() const
+	{
+		return this->oprtr->getCPointerToMesh()->getActiveElems();
 	}
 }
 

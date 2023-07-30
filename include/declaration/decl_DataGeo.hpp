@@ -57,20 +57,24 @@ namespace geometry
 				data displacement and data distribution cost functions.
 				These will be used to normalize the three contributions
 				to the collapse cost before combining them. */ 
-			array<Real,3> maxCost;
+			array<Real,4> maxCost; // NUOVO: DA array<Real,3> maxCost; A array<Real,4> maxCost;
 			
 			/*!	Weights for the geometric, data displacement and data 
 				distribution cost functions. */
-			array<Real,4> weight;
+			array<Real,5> weight; // NUOVO: DA array<Real,3> A array<Real,5>
 			
 			/*!	Variables keeping track, for each edge, of the minimum for 
 				each component. These values will be useful when checking 
 				whether the class requires an update. */
-			Real min_geo, min_disp, min_equi;
+			Real min_geo, min_disp, min_equi, min_diam; // NUOVO: AGGIUNTO MIN_DIAM
 			
 			/*!	Boolean saying whether the costs should be re-computed
 				because the maxima have significantly changed. */
 			bool to_update;
+
+			Real mean_diam; // NUOVO
+
+
 			
 		public:
 			//
@@ -83,13 +87,14 @@ namespace geometry
 				\param b	coefficient for data displacement cost function
 				\param c	coefficient for data distribution cost function */
 			DataGeo(bmeshOperation<Triangle, MeshType::DATA> * bmo = nullptr,
-				const Real & a = 1./3., const Real & b = 1./3., const Real & c = 1./3., const Real & d = 0.);
+				const Real & a = 1./3., const Real & b = 1./3., const Real & c = 1./3., 
+				const Real & d = 0., const Real & e = 0.);
 				
 			/*!	Constructor.
 				\param a	coefficient for geometric cost function
 				\param b	coefficient for data displacement cost function
 				\param c	coefficient for data distribution cost function */
-			DataGeo(const Real & a, const Real & b, const Real & c, const Real & d);
+			DataGeo(const Real & a, const Real & b, const Real & c, const Real & d, const Real & e);
 				
 			//
 			// Access members
@@ -140,6 +145,8 @@ namespace geometry
 							or data distribution (i = 2) cost
 				\return		the new coefficient */
 			void setWeight(const UInt & i, const Real & val);
+
+			const std::set<UInt> & getActiveElems() const;
 						
 		protected:
 			//
@@ -311,6 +318,12 @@ namespace geometry
 				This method provides the implementation of the method 
 				clear() of bcost. */
 			void imp_clear(); 
+
+			void computeMeanDiam(); // NUOVO
+
+			Real getCostDiam(const std::vector<UInt> & elems) const; // NUOVO
+
+			void updateMeanDiam(const std::vector<UInt> & toRemove);
 	};
 }
 

@@ -538,7 +538,7 @@ namespace geometry
 		for(unsigned i =0; i<NV; ++i)
 		{
 			auto P = getCPointerToMesh()->getNode(elem[i]);
-			for(unsigned j=0; j<NV; ++j)
+			for(unsigned j=i+1; j<NV; ++j)
 			{
 				auto Q = getCPointerToMesh()->getNode(elem[j]);
 				Real curr_length = (P-Q).norm2();

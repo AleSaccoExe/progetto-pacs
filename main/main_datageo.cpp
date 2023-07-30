@@ -96,14 +96,17 @@ int main(int argc, char * argv[])
 	high_resolution_clock::time_point start = high_resolution_clock::now();
 	#endif
 	
-	simplification<Triangle, MeshType::DATA, DataGeo> simplifier(iFile, 0.25, 0.25, 0.25, 0.25, 100.0, false);
-	// simplification<Triangle, MeshType::DATA, DataGeo> simplifier(iFile, 1./3., 1./3., 1./3., 0., 100.0, false);
+	// simplification<Triangle, MeshType::DATA, DataGeo> simplifier(iFile, 0.25, 0.25, 0.25, 0.25, 0., 100.0, false);
+	// simplification<Triangle, MeshType::DATA, DataGeo> simplifier(iFile, 1./3., 1./3., 1./3., 0., 0., 100.0, false);
+  	 simplification<Triangle, MeshType::DATA, DataGeo> simplifier(iFile, 0.25, 0.25, 0.25, 0., 0.25, 100.0, false);
 	simplifier.simplify(n, fixedElem, oFile);
-		
+	simplifier.print_diam("diam.txt");
+
 	#ifdef NDEBUG
 	high_resolution_clock::time_point stop = high_resolution_clock::now();
 	auto dif = duration_cast<milliseconds>(stop-start).count();
 	cout << "Total elapsed time: " << dif << " ms" << endl;
 	#endif
 	simplifier.getCPointerToMeshOperator()->print_qoi("qoi.txt");
+	simplifier.print_data_dist("dist.txt");
 }
